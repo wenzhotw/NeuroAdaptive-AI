@@ -73,6 +73,11 @@ h1,h2,.serif{font-family:"Noto Serif TC","Noto Serif CJK TC",serif}
   font-weight:800;text-align:center;line-height:20px;margin-right:4px}
 .step.active .n,.step.done .n{background:var(--green);color:#fff}
 
+
+.demo-switch{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff;margin:0 0 10px;vertical-align:middle}
+.demo-switch a{padding:5px 14px;font-size:13px;font-weight:700;color:var(--ink);text-decoration:none}
+.demo-switch a.current{background:var(--green);color:#fff}
+.demo-switch a .en{display:inline;font-size:11px;margin-left:4px;opacity:.85;font-weight:600}
 /* ---------- demo news page ---------- */
 #demo-frame{background:#fff;color:#222;font-family:"Noto Sans TC","Noto Sans CJK TC","PingFang TC","Microsoft JhengHei",sans-serif;
   min-height:80vh;position:relative;overflow:hidden}
@@ -164,10 +169,14 @@ footer.site a{color:#f4cf5d}
 <header class="hero" data-na-keep>
   <div class="hero-inner">
     <p class="eyebrow">人工智慧實務專題｜成果展示示範 · Course project showcase</p>
+    <nav class="demo-switch" aria-label="示範頁切換 Demo switcher">
+      <a href="./" class="current" aria-current="page">新聞頁 <span class="en">News</span></a>
+      <a href="shop/">購物頁 <span class="en">Shop</span></a>
+    </nav>
     <h1>NeuroAdaptive AI</h1>
     <p class="tagline">瀏覽負荷自我覺察工具 <span class="en">A self-awareness tool for browsing load</span></p>
     <p class="intro">這個示範會依你的滑鼠與捲動節奏、對照個人基準，估算目前的「注意力負荷」；偏高時會詢問你要不要開啟專注模式，把廣告、側欄與動畫收成單欄閱讀。所有計算只留在這個分頁，不會上傳。<br><span class="en">It senses browsing load from mouse and scroll patterns against a personal baseline, then offers Focus Mode. Data stays in this tab.</span></p>
-    <p class="disclaimer"><b>本工具是自我覺察的輔助，不是醫療診斷。</b> 下面的雜亂新聞頁已內建與擴充功能相同的規則，不需安裝任何東西。<span class="en">A self-awareness aid — not a medical diagnosis. No extension to install.</span></p>
+    <p class="disclaimer"><b>本工具是自我覺察的輔助，不是醫療診斷。</b> 下面的雜亂新聞頁已內建與擴充功能相同的規則，不需安裝任何東西。上方也可切換到購物網站示範。<span class="en">A self-awareness aid — not a medical diagnosis. No extension to install.</span></p>
   </div>
 </header>
 
@@ -272,6 +281,7 @@ footer.site a{color:#f4cf5d}
 <footer class="site" data-na-keep>
   <div class="inner">
     NeuroAdaptive AI　人工智慧實務專題成果展示示範頁。自我覺察工具，不是醫療診斷。　
+    <a href="./">新聞頁</a> · <a href="shop/">購物頁</a> ·
     <a href="https://github.com/shinshinchang/NeuroAdaptive-AI/pull/1">GitHub PR</a>
   </div>
 </footer>

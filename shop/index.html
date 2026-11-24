@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="na-exclude" content="false">
+<title>NeuroAdaptive AI 示範頁｜購物網站 Focus Mode</title>
+<meta name="description" content="不用安裝擴充功能。在一個刻意做得很吵的購物網站上，依滑鼠與捲動節奏估算瀏覽負荷，並示範專注模式如何把促銷與彈窗收起來。自我覺察工具，不是醫療診斷。資料只留在這個分頁。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#e9dcc3; --cream:#fbf6ea; --card:#fffdf7; --ink:#2b2622;
+  --muted:#5c564f; --line:#e8e1d3; --red:#d9532b; --orange:#f0a33a;
+  --green:#2f7d5b; --blue:#5b86c5; --teal:#6fb3a8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Noto Sans TC","Noto Sans CJK TC","PingFang TC","Microsoft JhengHei",sans-serif;}
+body{min-width:0}
+.en{display:block;font-size:.82em;font-weight:500;color:var(--muted);letter-spacing:.01em}
+h1,h2,.serif{font-family:"Noto Serif TC","Noto Serif CJK TC",serif}
+
+/* ---------- page chrome ---------- */
+.hero,.bar,.explainer,footer.site{position:relative}
+.hero{background:var(--cream);border-bottom:1px solid var(--line);padding:16px 20px 12px}
+.hero-inner,.bar-inner,.explainer-inner,footer.site .inner{max-width:1120px;margin:0 auto}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--green);text-transform:none;margin:0 0 4px}
+.hero h1{margin:0 0 2px;font-size:clamp(24px,3.4vw,34px);line-height:1.2}
+.tagline{margin:0 0 8px;font-size:14px;font-weight:700}
+.intro{margin:0 0 8px;font-size:14px;line-height:1.65;color:var(--ink);max-width:82ch}
+.intro .en{display:inline;margin-left:.4em}
+.disclaimer{margin:0;padding:7px 12px;background:#f3ede0;border-radius:10px;font-size:12.5px;line-height:1.55;max-width:82ch}
+.disclaimer .en{display:inline;margin-left:.35em}
+.disclaimer b{font-weight:800}
+
+.bar{position:sticky;top:0;z-index:80;background:rgba(251,246,234,.96);backdrop-filter:blur(8px);
+  border-bottom:2px solid var(--line);box-shadow:0 4px 16px rgba(43,38,34,.06)}
+.bar-inner{padding:8px 16px 10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.meter{display:flex;align-items:center;gap:10px;min-width:200px}
+.ring{width:56px;height:56px;position:relative;flex:none}
+.ring svg{transform:rotate(-90deg);width:56px;height:56px}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px}
+.meter-copy .lbl{font-size:12px;color:var(--muted)}
+.meter-copy .lvl{font-size:18px;font-weight:800;line-height:1.2}
+.comps{display:flex;flex-direction:column;gap:2px;min-width:160px;flex:1;max-width:240px;font-size:10px;color:#555}
+.comps .row{display:grid;grid-template-columns:1fr 28px;gap:6px;align-items:center}
+.comps .track{height:5px;background:#eee;border-radius:3px;overflow:hidden}
+.comps .track i{display:block;height:100%;background:var(--blue);width:0;transition:width .3s}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;flex:2}
+.btn{border:0;border-radius:10px;padding:9px 14px;font-size:14px;font-weight:700;cursor:pointer;
+  font-family:inherit;background:#eee;color:var(--ink)}
+.btn:hover{filter:brightness(.97)}
+.btn.pri{background:var(--green);color:#fff}
+.btn.warn{background:var(--ink);color:#fff}
+.btn.on{background:var(--teal);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.toggle{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;background:#fff;border:1px solid var(--line);
+  border-radius:10px;padding:8px 10px;cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--green)}
+.hint{flex-basis:100%;margin:0;font-size:11.5px;color:var(--muted);line-height:1.45}
+.hint .en{display:inline;margin-left:.35em}
+
+.steps{flex-basis:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.step{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 8px;
+  transition:border-color .3s, background .3s, transform .3s}
+.step b{display:block;font-size:12.5px}
+.step .en{font-size:10.5px}
+.step.active{border-color:var(--green);background:#eef6f1;transform:translateY(-1px);box-shadow:0 4px 10px rgba(47,125,91,.12)}
+.step.done{border-color:#cfe0d6;background:#f4faf6}
+.step .n{display:inline-block;width:20px;height:20px;border-radius:50%;background:#eee;color:#333;font-size:12px;
+  font-weight:800;text-align:center;line-height:20px;margin-right:4px}
+.step.active .n,.step.done .n{background:var(--green);color:#fff}
+
+
+
+
+/* ---------- explainer ---------- */
+.explainer{background:var(--cream);padding:48px 20px 56px;border-top:1px solid var(--line)}
+.explainer h2{margin:0 0 8px;font-size:clamp(24px,3vw,32px)}
+.explainer .lead{margin:0 0 24px;font-size:16px;line-height:1.7;max-width:70ch}
+.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:start}
+.ba{width:100%;border-radius:14px;box-shadow:0 10px 28px rgba(43,38,34,.14);border:2px solid var(--line);background:#fff}
+.ba-cap{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--muted);margin:8px 2px 0}
+.cards{display:grid;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h3{margin:0 0 6px;font-size:16px}
+.card p,.card li{margin:0;font-size:14px;line-height:1.7}
+.card ol{margin:0;padding-left:1.2em}
+.card .lock{font-size:13px;color:var(--muted)}
+footer.site{background:#2b2622;color:#fbf6ea;padding:20px;font-size:13px;line-height:1.6}
+footer.site a{color:#f4cf5d}
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr}
+}
+/* tighter hero on the shop page */
+.hero{padding:10px 20px 8px}
+.hero h1{font-size:28px}
+.tagline{margin:0 0 4px;font-size:13px}
+.intro{font-size:13px;margin:0 0 6px;line-height:1.6}
+.disclaimer{padding:6px 10px;font-size:12px}
+.demo-switch{margin:0 0 6px}
+/* ---------- shop stage ---------- */
+#demo-frame{background:#fff;color:#222;font-family:"Noto Sans TC","Noto Sans CJK TC","PingFang TC","Microsoft JhengHei",sans-serif;min-height:80vh;position:relative;overflow:hidden}
+.shop-toolbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 18px;background:#1a3630;color:#fff;position:relative;z-index:40}
+.shop-toolbar .logo{font-family:"Noto Serif TC",serif;font-weight:700;font-size:22px;letter-spacing:.04em;white-space:nowrap}
+.shop-toolbar .logo small{display:block;font-family:"Noto Sans TC",sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;opacity:.8;margin-top:1px}
+.shop-search{flex:1;min-width:180px;display:flex;background:#fff;border-radius:8px;overflow:hidden}
+.shop-search input{flex:1;border:0;padding:9px 12px;font:inherit;font-size:14px;color:#222;outline:none}
+.shop-search button{border:0;background:#c45c26;color:#fff;padding:9px 16px;font-weight:800;cursor:pointer;font-family:inherit}
+.cart-btn{border:0;background:#f4cf5d;color:#1a3630;border-radius:8px;padding:8px 14px;font-weight:800;cursor:pointer;font-family:inherit;position:relative}
+.cart-btn .n{position:absolute;top:-8px;right:-8px;background:#d9532b;color:#fff;border-radius:10px;min-width:18px;height:18px;font-size:11px;line-height:18px;text-align:center;padding:0 5px}
+.shop-cats{display:flex;gap:14px;flex-basis:100%;font-size:13px;opacity:.92}
+.shop-cats span{cursor:default}
+
+.flash-sale{background:linear-gradient(90deg,#d9532b,#e07a2f,#d9532b);background-size:200% 100%;animation:grad 2.4s linear infinite;color:#fff;display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;padding:10px 16px;font-weight:800;font-size:clamp(14px,2.2vw,20px)}
+@keyframes grad{to{background-position:200% 0}}
+.flash-sale .cd{display:inline-flex;gap:4px}
+.flash-sale .cd b{background:#2b2622;color:#f4cf5d;border-radius:4px;padding:2px 6px;font-variant-numeric:tabular-nums;animation:pulse 1s steps(2) infinite}
+@keyframes pulse{50%{filter:brightness(1.4)}}
+
+.ticker{background:#111;color:#ffd400;white-space:nowrap;overflow:hidden;font-size:13px;padding:5px 0}
+.ticker span{display:inline-block;padding-left:100%;animation:tick 16s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+
+.carousel{position:relative;height:150px;overflow:hidden;background:#2a1c16}
+.carousel-track{display:flex;height:100%;width:300%;animation:caro 7.5s ease-in-out infinite}
+@keyframes caro{0%,28%{transform:translateX(0)}33%,61%{transform:translateX(-33.333%)}66%,94%{transform:translateX(-66.666%)}100%{transform:translateX(0)}}
+.slide{flex:0 0 33.333%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:clamp(18px,3vw,32px);letter-spacing:.04em}
+.slide:nth-child(1){background:linear-gradient(120deg,#c45c26,#f0a33a)}
+.slide:nth-child(2){background:linear-gradient(120deg,#1a3630,#6fb3a8)}
+.slide:nth-child(3){background:linear-gradient(120deg,#8b1e3f,#d9532b)}
+.live{display:inline-block;background:#e11;color:#fff;font-size:11px;padding:1px 6px;border-radius:3px;margin-right:8px;animation:flash 0.8s steps(2) infinite}
+@keyframes flash{50%{background:#ff6}}
+
+.wrap{display:flex;gap:16px;width:min(1240px,100%);margin:0 auto;padding:12px 10px 80px}
+.left-sidebar,.sidebar{width:200px;flex:none;font-size:13px}
+.left-sidebar h3,.sidebar h3{margin:0 0 8px;font-size:14px}
+.left-sidebar li{margin:7px 0;color:#c45c26}
+.rank div{padding:7px 0;border-bottom:1px solid #eee}
+.rank b{color:#d9532b}
+.shop-main{flex:1;min-width:0}
+.shop-main > h1{font-size:22px;margin:4px 0 12px}
+.shop-main .sub{color:#888;font-size:12px;margin:-6px 0 12px}
+.product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.product-card{border:1px solid #eee;border-radius:10px;overflow:hidden;background:#fff;display:flex;flex-direction:column;position:relative;transition:box-shadow .2s,transform .4s}
+.product-card .photo{height:140px;display:flex;align-items:center;justify-content:center;position:relative}
+.product-card .emoji{font-size:52px;filter:drop-shadow(0 4px 0 rgba(0,0,0,.08))}
+.badge-flash{position:absolute;top:8px;left:8px;background:#e11;color:#fff;font-size:11px;font-weight:800;padding:2px 6px;border-radius:3px;animation:flash .8s steps(2) infinite}
+.off{position:absolute;top:8px;right:8px;background:#f4cf5d;color:#2b2622;font-size:12px;font-weight:900;padding:2px 6px;border-radius:3px}
+.product-card h3{margin:8px 10px 0;font-size:14px;font-weight:800;line-height:1.35}
+.brand{margin:2px 10px 0;font-size:11px;color:#888}
+.spec{margin:4px 10px 0;font-size:12px;color:#555;display:none}
+.price-row{margin:6px 10px 0;display:flex;align-items:baseline;gap:8px}
+.price{font-size:16px;font-weight:900;color:#d9532b}
+.was{font-size:12px;color:#aaa}
+.product-card .meta{margin:4px 10px 0;font-size:11px;color:#888}
+.buy-btn{margin:8px 10px 10px;border:0;border-radius:8px;background:#1a3630;color:#fff;padding:8px;font-weight:800;cursor:pointer;font-family:inherit;font-size:13px}
+.buy-btn:hover{filter:brightness(1.1)}
+.ad-box{height:160px;background:#222;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 0 12px;border-radius:8px;font-size:18px;font-weight:800;animation:flash 1.2s steps(2) infinite;text-align:center;padding:8px}
+.spin{width:40px;height:40px;border:6px solid #fff;border-top-color:#f4cf5d;border-radius:50%;animation:sp 1s linear infinite;margin-bottom:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.rec div{padding:8px 0;border-bottom:1px solid #eee;font-size:12px}
+
+.coupon-popup{position:fixed;left:50%;top:58%;transform:translate(-50%,-20%);width:min(360px,92vw);background:#fffdf7;border:3px solid #c45c26;border-radius:16px;padding:22px 20px 16px;z-index:70;box-shadow:0 18px 40px rgba(0,0,0,.28);text-align:center}
+.coupon-popup h3{margin:0 0 6px;font-size:22px;color:#c45c26}
+.coupon-popup p{margin:0 0 12px;font-size:14px}
+.coupon-popup .code{font-size:28px;font-weight:900;letter-spacing:.12em;background:#f4cf5d;padding:8px;border-radius:8px;margin-bottom:12px}
+.coupon-popup .x{position:absolute;top:8px;right:12px;border:0;background:none;font-size:22px;cursor:pointer}
+.popup-chat{position:fixed;right:20px;bottom:64px;width:230px;background:#25d366;color:#fff;padding:12px;border-radius:12px;font-size:13px;animation:bounce 1.4s infinite;z-index:60}
+@keyframes bounce{50%{transform:translateY(-8px)}}
+.promo-strip{position:fixed;left:0;bottom:0;width:100%;background:#f4cf5d;color:#2b2622;padding:10px 20px;font-weight:800;z-index:59;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.view-toasts{position:fixed;left:16px;bottom:56px;z-index:58;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.view-toasts .vt{background:#2b2622;color:#fff;padding:7px 12px;border-radius:14px;font-size:12px;opacity:0;animation:vtin 3.2s ease forwards}
+@keyframes vtin{10%{opacity:1}80%{opacity:1}100%{opacity:0}}
+
+#cart-drawer{position:fixed;top:0;right:0;width:min(360px,92vw);height:100vh;background:#fffdf7;z-index:90;box-shadow:-8px 0 24px rgba(0,0,0,.2);padding:20px 18px;display:none;flex-direction:column;font-family:"Noto Sans TC",sans-serif;color:#2b2622}
+#cart-drawer.open{display:flex}
+#cart-drawer h2{margin:0 0 12px;font-size:20px}
+#cart-items{list-style:none;margin:0;padding:0;flex:1;overflow:auto}
+#cart-items li{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:14px}
+#cart-drawer .sum{font-size:18px;font-weight:800;margin:12px 0}
+#cart-drawer .close{position:absolute;top:10px;right:12px;border:0;background:none;font-size:22px;cursor:pointer}
+
+/* Focus Mode – shop */
+.na-hide{transition:opacity .9s ease, filter .9s ease !important;opacity:0 !important;filter:blur(4px) !important;pointer-events:none !important}
+.na-slide{transition:transform 1s cubic-bezier(.6,0,.4,1), opacity 1s ease !important;transform:translateX(120%) !important;opacity:0 !important;pointer-events:none !important}
+.na-gone{display:none !important}
+html.na-f3 #demo-frame{background:#f6f1e7 !important;transition:background .8s}
+html.na-f3 #demo-frame .wrap{filter:saturate(.28) !important;transition:filter 1s ease}
+html.na-f3 #demo-frame *{animation-play-state:paused !important;animation:none !important;transition-property:opacity,transform,filter,background,font-size,line-height,max-width,grid-template-columns,gap,padding !important}
+html.na-f3 .flash-sale .cd b,html.na-focus .flash-sale .cd b{animation:none !important}
+html.na-f4 #demo-frame .wrap{display:block;width:auto;max-width:none;padding:16px 16px 40px;filter:saturate(.28) !important}
+html.na-f4 [data-na-main]{max-width:920px !important;margin:12px auto !important;float:none !important;width:auto !important}
+html.na-f4 .product-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:28px !important}
+html.na-f4 .product-card{background:#fffdf7;border-color:#e8e1d3;box-shadow:0 6px 18px rgba(43,38,34,.06)}
+html.na-f4 .product-card .photo{height:200px}
+html.na-f4 .product-card h3{font-size:20px !important;margin:14px 18px 0;color:#2b2622}
+html.na-f4 .spec{display:block !important;margin:6px 18px 0;font-size:15px;color:#5c564f}
+html.na-f4 .price{font-size:26px !important;color:#2b2622 !important}
+html.na-f4 .was{font-size:14px}
+html.na-f4 .price-row,.product-card .meta,.buy-btn{margin-left:18px;margin-right:18px}
+html.na-f4 .buy-btn{margin-bottom:16px;padding:12px;font-size:15px;background:#2f7d5b}
+html.na-f4 .badge-flash,.off{display:none !important}
+html.na-f4 .shop-main > h1{font-size:28px;max-width:920px;margin:8px auto 4px;color:#2b2622;text-align:left}
+html.na-f4 .shop-main .sub{max-width:920px;margin:0 auto 16px}
+html.na-focus .shop-toolbar{background:#2b2622}
+html.na-focus .shop-search button,html.na-focus .cart-btn{background:#2f7d5b;color:#fff}
+
+.demo-switch{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff;margin:0 0 10px;vertical-align:middle}
+.demo-switch a{padding:5px 14px;font-size:13px;font-weight:700;color:var(--ink);text-decoration:none}
+.demo-switch a.current{background:var(--green);color:#fff}
+.demo-switch a .en{display:inline;font-size:11px;margin-left:4px;opacity:.85;font-weight:600}
+
+@media (max-width:1100px){.product-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:900px){
+  .grid,.steps{grid-template-columns:1fr 1fr}
+  .wrap{flex-direction:column;width:100%}
+  .left-sidebar,.sidebar{width:100%}
+  .product-grid{grid-template-columns:repeat(2,1fr)}
+  html.na-f4 .product-grid{grid-template-columns:1fr !important}
+  .popup-chat{right:10px;bottom:56px;width:min(230px,70vw)}
+  .comps{display:none}
+}
+@media (max-width:600px){
+  .steps{grid-template-columns:1fr 1fr}
+  .hero{padding:12px 14px 10px}
+  .hero h1{font-size:24px}
+  .intro{font-size:13px}
+  .product-grid{grid-template-columns:repeat(2,1fr)}
+  .shop-cats{display:none}
+}
+
+</style>
+</head>
+<body>
+<header class="hero" data-na-keep>
+  <div class="hero-inner">
+    <p class="eyebrow">人工智慧實務專題｜成果展示示範 · Course project showcase</p>
+    <nav class="demo-switch" aria-label="示範頁切換 Demo switcher">
+      <a href="../">新聞頁 <span class="en">News</span></a>
+      <a href="./" class="current" aria-current="page">購物頁 <span class="en">Shop</span></a>
+    </nav>
+    <h1>NeuroAdaptive AI</h1>
+    <p class="tagline">瀏覽負荷自我覺察工具 <span class="en">A self-awareness tool for browsing load</span></p>
+    <p class="intro">下面是一個刻意做得很吵的購物網站。開啟專注模式後，閃購、彈窗與推薦會收起來，商品卡變大、價格與規格更清楚，搜尋與購物車都還能用。所有計算只留在這個分頁，不會上傳。<br><span class="en">A cluttered shop demo. Focus Mode calms it; search and cart still work. Data stays in this tab.</span></p>
+    <p class="disclaimer"><b>本工具是自我覺察的輔助，不是醫療診斷。</b> 規則與擴充功能相同，不需安裝。店名與商品皆為虛構，沒有使用真實品牌標誌。<span class="en">A self-awareness aid — not a medical diagnosis. The store is fictional.</span></p>
+  </div>
+</header>
+
+<div class="bar" id="na-bar" data-na-keep>
+  <div class="bar-inner">
+    <div class="meter" id="meter" title="即時負荷分數 Live load score">
+      <div class="ring">
+        <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="26" stroke="#eee" stroke-width="7" fill="none"/>
+          <circle id="arc" cx="32" cy="32" r="26" stroke="#2f7d5b" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4" style="transition:all .4s"/>
+        </svg>
+        <div class="num" id="num">0</div>
+      </div>
+      <div class="meter-copy">
+        <div class="lbl">注意力負荷（即時）<span class="en" style="display:inline;margin-left:4px">Live load score</span></div>
+        <div class="lvl" id="lvl">低</div>
+      </div>
+    </div>
+    <div class="comps" id="comps" aria-hidden="true"></div>
+    <div class="actions">
+      <label class="toggle"><input type="checkbox" id="demoMode" checked> Demo 模式<span class="en" style="display:inline;margin-left:4px">threshold 50 · 1.5s</span></label>
+      <button class="btn pri" id="btnFocus" type="button">直接開啟專注模式</button>
+      <button class="btn" id="btnRuler" type="button">閱讀尺</button>
+      <button class="btn" id="btnChunk" type="button">段落模式</button>
+      <button class="btn warn" id="btnUndo" type="button" disabled>一鍵復原</button>
+      <button class="btn" id="btnReset" type="button">重置</button>
+    </div>
+    <p class="hint">在下面的購物頁移動滑鼠或來回捲動，分數會上升；Demo 模式約 1.5 秒後會出現提示，也可直接按按鈕。<span class="en">Move or scroll to raise the score, or turn Focus Mode on manually.</span></p>
+    <div class="steps" id="steps" aria-label="專注模式四個步驟">
+      <div class="step" data-step="1"><b><span class="n">1</span>促銷與廣告淡出</b><span class="en">Promos fade</span></div>
+      <div class="step" data-step="2"><b><span class="n">2</span>彈窗、推薦與側欄滑走</b><span class="en">Popups and sidebars leave</span></div>
+      <div class="step" data-step="3"><b><span class="n">3</span>降低彩度、停止倒數與輪播</b><span class="en">Desaturate and pause motion</span></div>
+      <div class="step" data-step="4"><b><span class="n">4</span>放大商品卡、清楚標價</b><span class="en">Larger cards, clearer prices</span></div>
+    </div>
+  </div>
+</div>
+
+<section id="demo-frame" aria-label="雜亂示範購物頁 Cluttered demo shop">
+  <div class="shop-toolbar" data-na-keep>
+    <div class="logo">杉海市集<small>SHANHAI MART</small></div>
+    <form class="shop-search" id="shop-search" role="search">
+      <input id="shop-q" type="search" placeholder="搜尋商品，例如：濾杯、茶葉、手帳" autocomplete="off" aria-label="搜尋商品">
+      <button type="submit">搜尋</button>
+    </form>
+    <button type="button" class="cart-btn" id="cart-btn" aria-controls="cart-drawer">購物車 <span class="n" id="cart-count">0</span></button>
+    <div class="shop-cats"><span>今日優惠</span><span>器皿</span><span>茶食</span><span>織品</span><span>文具</span><span>香氛</span><span>食品</span><span>旅行</span></div>
+  </div>
+  <div class="flash-sale" data-na-ad>⚡ 閃購倒數 <span class="cd"><b data-cd>02:13:45</b></span>　全館滿 999 折 111　再抽免單</div>
+  <div class="ticker"><span>🔥 限時：羊毛蓋毯 26% off ｜ 新客折價券 SHAN100 ｜ 熱銷：四季春茶葉禮盒 ｜ 今晚 24:00 截止 ｜ 已有 3,842 人結帳 ｜ 滿 1,500 免運 ｜ 直播開箱進行中</span></div>
+  <div class="carousel" data-na-ad>
+    <div class="carousel-track">
+      <div class="slide"><span class="live">LIVE</span>今晚 20:00 茶葉開箱｜看就送試泡包</div>
+      <div class="slide">週末加碼！器皿類第二件 5 折</div>
+      <div class="slide">下載購物 APP 再折 80（示範，無真實 APP）</div>
+    </div>
+  </div>
+  <div class="wrap">
+    <aside class="left-sidebar">
+      <h3>商品分類</h3>
+      <ul>
+        <li>今日閃購 <span class="badge-flash">HOT</span></li>
+        <li>器皿與廚用</li>
+        <li>茶葉與食鋪</li>
+        <li>織品與居家</li>
+        <li>文具與紙品</li>
+        <li>香氛</li>
+        <li>旅行配件</li>
+      </ul>
+      <h3 style="margin-top:18px">熱銷排行</h3>
+      <div class="rank">
+        <div><b>1.</b> 四季春茶葉禮盒</div>
+        <div><b>2.</b> 手沖陶瓷濾杯</div>
+        <div><b>3.</b> 有機棉短襪三入</div>
+        <div><b>4.</b> 一年用空白手帳</div>
+        <div><b>5.</b> 柚花香氛蠟燭</div>
+      </div>
+    </aside>
+    <div class="shop-main" data-na-main>
+      <h1>本週熱賣</h1>
+      <p class="sub">杉海市集為虛構店家，商品與價格僅供示範。　This is a fictional store for the demo.</p>
+      <div class="product-grid">
+      <article class="product-card" data-name="手沖陶瓷濾杯" data-price="890" data-id="p1">
+        <div class="photo" style="background:#d9c3a8"><span class="emoji">🫖</span><span class="badge-flash" data-na-ad>剩 5 件</span><span class="off">-30%</span></div>
+        <h3>手沖陶瓷濾杯</h3>
+        <div class="brand">杉海器皿</div>
+        <div class="spec">220 ml · 啞光釉</div>
+        <div class="price-row"><span class="price">NT$ 890</span><s class="was">NT$ 1,280</s></div>
+        <div class="meta">★ 4.8　已售 2,314</div>
+        <button type="button" class="buy-btn" data-add="p1">加入購物車</button>
+      </article>
+      <article class="product-card" data-name="四季春茶葉禮盒" data-price="1280" data-id="p2">
+        <div class="photo" style="background:#3f6b52"><span class="emoji">🍃</span><span class="badge-flash" data-na-ad>熱銷</span><span class="off">-24%</span></div>
+        <h3>四季春茶葉禮盒</h3>
+        <div class="brand">杉海茶食</div>
+        <div class="spec">四款各 50g</div>
+        <div class="price-row"><span class="price">NT$ 1,280</span><s class="was">NT$ 1,680</s></div>
+        <div class="meta">★ 4.9　已售 1,890</div>
+        <button type="button" class="buy-btn" data-add="p2">加入購物車</button>
+      </article>
+      <article class="product-card" data-name="亞麻肩背購物袋" data-price="590" data-id="p3">
+        <div class="photo" style="background:#c9b896"><span class="emoji">👜</span><span class="badge-flash" data-na-ad>滿額贈</span><span class="off">-34%</span></div>
+        <h3>亞麻肩背購物袋</h3>
+        <div class="brand">日常布作</div>
+        <div class="spec">可水洗 · 奶茶色</div>
+        <div class="price-row"><span class="price">NT$ 590</span><s class="was">NT$ 890</s></div>
+        <div class="meta">★ 4.6　已售 3,021</div>
+        <button type="button" class="buy-btn" data-add="p3">加入購物車</button>
+      </article>
+      <article class="product-card" data-name="檜木杯墊四件組" data-price="420" data-id="p4">
+        <div class="photo" style="background:#c4a574"><span class="emoji">🪵</span><span class="badge-flash" data-na-ad>限時</span><span class="off">-38%</span></div>
+        <h3>檜木杯墊四件組</h3>
+        <div class="brand">林梢工房</div>
+        <div class="spec">台灣檜 · 9 cm</div>
+        <div class="price-row"><span class="price">NT$ 420</span><s class="was">NT$ 680</s></div>
+        <div class="meta">★ 4.7　已售 986</div>
+        <button type="button" class="buy-btn" data-add="p4">加入購物車</button>
+      </article>
+      <article class="product-card" data-name="黑豆蔭油貳瓶裝" data-price="360" data-id="p5">
+        <div class="photo" style="background:#4a2c2a"><span class="emoji">🫙</span><span class="badge-flash" data-na-ad>回購第一</span><span class="off">-25%</span></div>
+        <h3>黑豆蔭油貳瓶裝</h3>
+        <div class="brand">南風釀造</div>
+        <div class="spec">410 ml × 2</div>
+        <div class="price-row"><span class="price">NT$ 360</span><s class="was">NT$ 480</s></div>
+        <div class="meta">★ 4.8　已售 4,112</div>
+        <button type="button" class="buy-btn" data-add="p5">加入購物車</button>
+      </article>
+      <article class="product-card" data-name="羊毛蓋毯" data-price="1980" data-id="p6">
+        <div class="photo" style="background:#8b5e5a"><span class="emoji">🧶</span><span class="badge-flash" data-na-ad>HOT</span><span class="off">-26%</span></div>
+        <h3>羊毛蓋毯</h3>
+        <div class="brand">山居織造</div>
+        <div class="spec">130×160 cm · 燕麥色</div>
+        <div class="price-row"><span class="price">NT$ 1,980</span><s class="was">NT$ 2,680</s></div>
+        <div class="meta">★ 4.9　已售 654</div>
+        <button type="button" class="buy-btn" data-add="p6">加入購物車</button>
+      </article>
+      <article class="product-card" data-name="黃銅直角鋼筆" data-price="1450" data-id="p7">
+        <div class="photo" style="background:#2f3338"><span class="emoji">✒️</span><span class="badge-flash" data-na-ad>新品</span><span class="off">-23%</span></div>
+        <h3>黃銅直角鋼筆</h3>
+        <div class="brand">墨田文具</div>
+        <div class="spec">F 尖 · 附吸墨器</div>
+        <div class="price-row"><span class="price">NT$ 1,450</span><s class="was">NT$ 1,890</s></div>
+        <div class="meta">★ 4.5　已售 512</div>
+        <button type="button" class="buy-btn" data-add="p7">加入購物車</button>
+      </article>
+      <article class="product-card" data-name="柚花香氛蠟燭" data-price="680" data-id="p8">
+        <div class="photo" style="background:#e8d5b5"><span class="emoji">🕯️</span><span class="badge-flash" data-na-ad>買一送一</span><span class="off">-31%</span></div>
+        <h3>柚花香氛蠟燭</h3>
+        <div class="brand">燈下香室</div>
+        <div class="spec">燃燒約 40 小時</div>
+        <div class="price-row"><span class="price">NT$ 680</span><s class="was">NT$ 980</s></div>
+        <div class="meta">★ 4.7　已售 2,208</div>
+        <button type="button" class="buy-btn" data-add="p8">加入購物車</button>
+      </article>
+      <article class="product-card" data-name="帆布旅行後背包" data-price="1680" data-id="p9">
+        <div class="photo" style="background:#5a6b5c"><span class="emoji">🎒</span><span class="badge-flash" data-na-ad>剩 3 件</span><span class="off">-26%</span></div>
+        <h3>帆布旅行後背包</h3>
+        <div class="brand">旬路製包</div>
+        <div class="spec">18 L · 可放 14 吋筆電</div>
+        <div class="price-row"><span class="price">NT$ 1,680</span><s class="was">NT$ 2,280</s></div>
+        <div class="meta">★ 4.8　已售 1,247</div>
+        <button type="button" class="buy-btn" data-add="p9">加入購物車</button>
+      </article>
+      <article class="product-card" data-name="有機棉短襪三入" data-price="390" data-id="p10">
+        <div class="photo" style="background:#6d7a8b"><span class="emoji">🧦</span><span class="badge-flash" data-na-ad>兩件 85 折</span><span class="off">-34%</span></div>
+        <h3>有機棉短襪三入</h3>
+        <div class="brand">赤足日常</div>
+        <div class="spec">22–26 cm</div>
+        <div class="price-row"><span class="price">NT$ 390</span><s class="was">NT$ 590</s></div>
+        <div class="meta">★ 4.6　已售 5,430</div>
+        <button type="button" class="buy-btn" data-add="p10">加入購物車</button>
+      </article>
+      <article class="product-card" data-name="一年用空白手帳" data-price="520" data-id="p11">
+        <div class="photo" style="background:#e7e0d4"><span class="emoji">📓</span><span class="badge-flash" data-na-ad>熱銷</span><span class="off">-28%</span></div>
+        <h3>一年用空白手帳</h3>
+        <div class="brand">頁間紙品</div>
+        <div class="spec">A5 · 鋼筆適用</div>
+        <div class="price-row"><span class="price">NT$ 520</span><s class="was">NT$ 720</s></div>
+        <div class="meta">★ 4.8　已售 3,765</div>
+        <button type="button" class="buy-btn" data-add="p11">加入購物車</button>
+      </article>
+      <article class="product-card" data-name="雙層玻璃水壺" data-price="750" data-id="p12">
+        <div class="photo" style="background:#7a9eae"><span class="emoji">🫧</span><span class="badge-flash" data-na-ad>免運</span><span class="off">-24%</span></div>
+        <h3>雙層玻璃水壺</h3>
+        <div class="brand">清波器物</div>
+        <div class="spec">650 ml · 防燙</div>
+        <div class="price-row"><span class="price">NT$ 750</span><s class="was">NT$ 990</s></div>
+        <div class="meta">★ 4.7　已售 1,088</div>
+        <button type="button" class="buy-btn" data-add="p12">加入購物車</button>
+      </article>
+      </div>
+    </div>
+    <aside class="sidebar">
+      <div class="ad-box" data-na-ad><div class="spin"></div>限時加購<br>只要再 $87</div>
+      <h3>猜你喜歡</h3>
+      <div class="rec related-list">
+        <div>看了濾杯的人也看：手沖壺</div>
+        <div>看了茶葉的人也看：茶荷</div>
+        <div>看了蓋毯的人也看：抱枕套</div>
+        <div>剛看過：黃銅直角鋼筆</div>
+      </div>
+      <div class="ad-box" data-na-ad style="height:120px;margin-top:12px">辦卡首刷送購物金<br>（虛構活動）</div>
+    </aside>
+  </div>
+  <div class="promo-strip" data-na-ad><span>再買 <b>$126</b> 即可免運　｜　滿額加購只要 $87</span><span>立即結帳  ▸</span></div>
+  <div class="popup-chat">💬 客服在線上！輸入「優惠」立刻領券～</div>
+  <div class="view-toasts" id="view-toasts" data-na-noise></div>
+  <div class="coupon-popup" id="coupon-popup" data-na-ad style="display:none">
+    <button type="button" class="x" id="coupon-x" aria-label="關閉">×</button>
+    <h3>新客限定折價券</h3>
+    <p>離開前先領 $100，滿 799 可用。<span class="en" style="display:inline">A demo coupon popup.</span></p>
+    <div class="code">SHAN100</div>
+    <button type="button" class="btn pri" id="coupon-ok" style="background:#c45c26;color:#fff;border:0;border-radius:10px;padding:9px 16px;font-weight:700;cursor:pointer">立刻領取</button>
+  </div>
+</section>
+
+<div id="cart-drawer" data-na-keep aria-label="購物車">
+  <button type="button" class="close" id="cart-close" aria-label="關閉購物車">×</button>
+  <h2>購物車</h2>
+  <ul id="cart-items"></ul>
+  <div class="sum">合計 NT$ <span id="cart-total">0</span></div>
+  <button type="button" class="btn pri" id="cart-checkout" style="background:#2f7d5b;color:#fff;border:0;border-radius:10px;padding:12px;font-weight:800;cursor:pointer">前往結帳（示範）</button>
+  <p style="font-size:12px;color:#666;margin:10px 0 0">這是示範購物車，不會送出訂單或收費。<span class="en">A demo cart — no real checkout.</span></p>
+</div>
+
+<section class="explainer" id="explainer" data-na-keep>
+  <div class="explainer-inner">
+    <h2>開啟之後會怎樣？</h2>
+    <p class="lead">按下「開啟」後，購物頁會用大約四秒、分成四步把促銷與干擾收起來。搜尋列和購物車會留下來，商品卡變大、價格與規格更清楚。你可以隨時復原。<span class="en">Focus Mode calms the shop in four steps. Search and cart stay available.</span></p>
+    <div class="grid">
+      <figure style="margin:0">
+        <img class="ba" src="before_after.png" alt="開啟前與專注模式的對照：左側是充滿閃購、彈窗與推薦的購物頁，右側是較大商品卡、清楚標價的平靜畫面。">
+        <div class="ba-cap"><span>開啟前 · Before</span><span>專注模式 · After Focus Mode</span></div>
+      </figure>
+      <div class="cards">
+        <div class="card">
+          <h3>四個步驟 · The four steps</h3>
+          <ol>
+            <li>促銷橫幅、輪播與廣告淡出　<span class="en" style="display:inline">Promos fade</span></li>
+            <li>折價券彈窗、客服氣泡、推薦側欄與「有人正在看」通知滑走　<span class="en" style="display:inline">Popups and sidebars leave</span></li>
+            <li>降低彩度，停止倒數、輪播與閃爍　<span class="en" style="display:inline">Desaturate and pause motion</span></li>
+            <li>商品卡變大、每列變少，價格與規格更清楚　<span class="en" style="display:inline">Larger cards, clearer prices</span></li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>還能做的事 · What still works</h3>
+          <p>搜尋列可以篩選商品，加入購物車、開啟購物車與移除商品都還能用。閱讀尺與段落模式也仍可開關。隨時按「一鍵復原」回到原本的熱鬧畫面。</p>
+        </div>
+        <div class="card">
+          <h3>資料留在本機 · Data stays local</h3>
+          <p class="lock">滑鼠與捲動只在這個分頁的記憶體裡計算，不會上傳，也不會存下原始軌跡。店名、商品與優惠都是虛構的示範內容。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site" data-na-keep>
+  <div class="inner">
+    NeuroAdaptive AI　人工智慧實務專題成果展示示範頁。自我覺察工具，不是醫療診斷。　
+    <a href="../">新聞頁</a> · <a href="./">購物頁</a> ·
+    <a href="https://github.com/shinshinchang/NeuroAdaptive-AI/pull/1">GitHub PR</a>
+  </div>
+</footer>
+
+<script>
+/* NeuroAdaptive AI – standalone page build of the Chrome extension content script.
+   Scoring window, v0.1 weights, baseline, Demo-mode thresholds, and Focus Mode steps
+   are the same as extension/content.js. No chrome.* APIs; data stays in this tab.
+   Self-awareness tool — not a medical diagnosis. */
+(() => {
+  const WINDOW_MS = 12000, CALIB_MS = 25000;
+  const calib = { start: performance.now(), sum: 0, n: 0, base: null };
+  const S = { enabled: true, sensitivity: 1.0, demoMode: true, trail: false, autoPrompt: true };
+  let moves = [], scrolls = [], lastScrollY = window.scrollY, lastScrollDir = 0, segStart = window.scrollY;
+  let score = 0, comps = {}, highSince = 0, prompted = false, snoozeUntil = 0;
+  let focusOn = false, chunkOn = false, rulerOn = false, focusHighSince = 0;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  const host = document.createElement('div'); host.id = 'na-root';
+  const root = host.attachShadow({ mode: 'open' });
+  root.innerHTML = `<style>
+  :host{all:initial}
+  *{box-sizing:border-box;font-family:"Noto Sans TC","Noto Sans CJK TC","PingFang TC","Microsoft JhengHei",sans-serif}
+  .prompt{position:fixed;top:120px;right:16px;z-index:2147483646;width:330px;background:#fffdf7;border-radius:16px;padding:18px;box-shadow:0 12px 32px rgba(0,0,0,.25);border:2px solid #f0a33a;transform:translateY(-10px);opacity:0;transition:all .35s;pointer-events:none}
+  .prompt.show{opacity:1;transform:none;pointer-events:auto}
+  .prompt h3{margin:0 0 6px;font-size:17px;color:#222}.prompt p{margin:0 0 14px;font-size:13px;color:#555;line-height:1.6}
+  .btn{border:0;border-radius:10px;padding:9px 16px;font-size:14px;font-weight:700;cursor:pointer;margin-right:8px;font-family:inherit}
+  .pri{background:#2f7d5b;color:#fff}.sec{background:#eee;color:#333}
+  .ruler{position:fixed;left:0;right:0;z-index:2147483640;pointer-events:none;display:none}
+  .rtop{top:0;background:rgba(30,25,20,.45)}.rbot{bottom:0;background:rgba(30,25,20,.45)}
+  .rband{position:fixed;left:0;right:0;height:46px;border-top:2px solid #f0a33a;border-bottom:2px solid #f0a33a;pointer-events:none;z-index:2147483641;display:none}
+  .prog{position:fixed;top:0;left:0;height:6px;background:#2f7d5b;z-index:2147483647;width:0;transition:width .3s;display:none}
+  .chunknav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:2147483646;display:none;background:#fffdf7;border-radius:14px;padding:8px;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+  .brk{position:fixed;inset:0;z-index:2147483647;background:rgba(246,241,231,.96);display:none;align-items:center;justify-content:center;flex-direction:column;color:#333}
+  .brk.show{display:flex}.breath{width:140px;height:140px;border-radius:50%;background:#9cc9b0;animation:br 8s ease-in-out infinite}
+  @keyframes br{0%,100%{transform:scale(.6)}50%{transform:scale(1.1)}}
+  .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#2b2622;color:#fff;padding:8px 16px;border-radius:20px;font-size:14px;z-index:2147483647;opacity:0;transition:opacity .3s,top .2s;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis}
+  canvas{position:fixed;inset:0;pointer-events:none;z-index:2147483639}
+  </style>
+  <canvas id="trail"></canvas>
+  <div class="ruler rtop" id="rt"></div><div class="rband" id="rb"></div><div class="ruler rbot" id="rbt"></div>
+  <div class="prog" id="prog"></div>
+  <div class="prompt" id="prompt"><h3>偵測到注意力負荷偏高，要開啟專注模式嗎？</h3><p>最近幾秒的滑鼠或捲動變化較大。專注模式會藏起廣告與側欄、降低彩度並放大字距。你可以隨時關閉。<br><span style="color:#888;font-size:12px">Load looks high. Turn on Focus Mode? You can undo anytime.</span></p>
+   <button class="btn pri" id="yes">開啟</button><button class="btn sec" id="no">稍後</button></div>
+  <div class="chunknav" id="cn"><button class="btn sec" id="cprev">上一段</button><button class="btn pri" id="cnext">下一段</button></div>
+  <div class="brk" id="brk"><div class="breath"></div><h2 style="margin:28px 0 6px">休息一分鐘</h2><p id="brkt">跟著圓圈慢慢吸氣、吐氣　60</p><button class="btn sec" id="brkx">略過</button></div>
+  <div class="toast" id="toast"></div><button class="btn sec" id="undo" style="position:fixed;left:16px;bottom:16px;z-index:2147483646;display:none;box-shadow:0 4px 12px rgba(0,0,0,.2)">↩ 一鍵復原</button>`;
+  (document.body || document.documentElement).appendChild(host);
+  const $ = id => root.getElementById(id);
+  const live = id => document.getElementById(id);
+
+  addEventListener('pointermove', e => {
+    if (!S.enabled) return;
+    moves.push({ t: performance.now(), x: e.clientX, y: e.clientY });
+    placeRuler(e.clientY);
+  }, { passive: true });
+  addEventListener('scroll', () => {
+    const y = window.scrollY, d = Math.sign(y - lastScrollY);
+    if (d && d !== lastScrollDir) { if (lastScrollDir && Math.abs(lastScrollY - segStart) >= 120) scrolls.push(performance.now()); lastScrollDir = d; segStart = lastScrollY; }
+    lastScrollY = y;
+  }, { passive: true });
+
+  function features() {
+    const now = performance.now();
+    moves = moves.filter(m => now - m.t < WINDOW_MS); scrolls = scrolls.filter(t => now - t < WINDOW_MS);
+    const sp = []; let dirCh = 0, path = 0, activeMs = 0, prevAng = null, bursts = 0;
+    for (let i = 1; i < moves.length; i++) {
+      const a = moves[i - 1], b = moves[i], dt = b.t - a.t; if (dt <= 0 || dt > 250) { prevAng = null; continue; }
+      const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy); if (d < 2) continue;
+      const v = d / dt * 1000; sp.push(v); path += d; activeMs += dt; if (v > 2200) bursts++;
+      const ang = Math.atan2(dy, dx);
+      if (prevAng !== null) { let da = Math.abs(ang - prevAng); if (da > Math.PI) da = 2 * Math.PI - da; if (da > Math.PI / 2) dirCh++; }
+      prevAng = ang;
+    }
+    const n = sp.length, mean = n ? sp.reduce((s, v) => s + v, 0) / n : 0;
+    const sd = n > 1 ? Math.sqrt(sp.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1)) : 0;
+    const act = Math.max(activeMs / 1000, 0.5);
+    return { n, speedMean: mean, speedSD: sd, speedCV: mean ? sd / mean : 0, burstRatio: n ? bursts / n : 0,
+      dirPerSec: dirCh / act, scrollFlips: scrolls.length, activeSec: activeMs / 1000 };
+  }
+
+  function compute() {
+    const f = features();
+    comps = {
+      paceVariability: clamp((f.speedCV - 0.55) / 0.9, 0, 1),
+      impulsiveBursts: clamp(f.burstRatio / 0.22, 0, 1),
+      scrollBacktrack: clamp(f.scrollFlips / 6, 0, 1),
+      direction: clamp((f.dirPerSec - 0.6) / 4, 0, 1),
+      movementVariability: clamp(f.speedSD / 900, 0, 1),
+    };
+    let raw = 100 * (comps.paceVariability * .30 + comps.impulsiveBursts * .28 + comps.scrollBacktrack * .20 + comps.direction * .12 + comps.movementVariability * .10);
+    if (f.activeSec < 1.0) raw *= f.activeSec;
+    if (!S.demoMode) {
+      if (calib.base === null) { if (f.activeSec >= 1) { calib.sum += raw; calib.n++; } if (performance.now() - calib.start > CALIB_MS && calib.n >= 10) calib.base = Math.min(calib.sum / calib.n, 50); }
+      else { const b = calib.base * 0.8; raw = clamp((raw - b) * 100 / (100 - b), 0, 100); }
+    }
+    raw = clamp(raw * S.sensitivity, 0, 100);
+    score = score + (raw - score) * 0.35;
+    render(f);
+  }
+
+  const TH = () => S.demoMode ? { high: 50, mod: 28, hold: 1500, prompt: 50 } : { high: 65, mod: 35, hold: 6000, prompt: 70 };
+  const names = { paceVariability: '節奏不穩 ×0.30', impulsiveBursts: '突發甩動 ×0.28', scrollBacktrack: '來回捲動 ×0.20', direction: '方向變換 ×0.12', movementVariability: '速度變異 ×0.10' };
+  const CIRC = 163.4;
+
+  function render(f) {
+    const s = Math.round(score), th = TH();
+    const lvl = s >= th.high ? 'High' : s >= th.mod ? 'Moderate' : 'Low';
+    const col = lvl === 'High' ? '#d9532b' : lvl === 'Moderate' ? '#f0a33a' : '#2f7d5b';
+    const label = { High: '偏高', Moderate: '中等', Low: '低' }[lvl] + ((!S.demoMode && calib.base === null) ? '・校準中' : '');
+    live('num').textContent = s;
+    live('lvl').textContent = label;
+    live('lvl').style.color = col;
+    live('arc').style.stroke = col;
+    live('arc').style.strokeDashoffset = CIRC * (1 - s / 100);
+    live('comps').innerHTML = Object.entries(comps).map(([k, v]) =>
+      `<div class="row"><span>${names[k]}<div class="track"><i style="width:${Math.round(v * 100)}%"></i></div></span><span>${Math.round(v * 100)}</span></div>`
+    ).join('');
+    window.__naState = { score: s, level: lvl, comps, features: f, focusOn };
+    document.documentElement.setAttribute('data-na-score', s);
+    document.documentElement.setAttribute('data-na-focus', focusOn ? '1' : '0');
+    const now = performance.now();
+    if (s >= th.prompt) { if (!highSince) highSince = now; } else highSince = 0;
+    if (S.autoPrompt && !focusOn && !prompted && highSince && now - highSince > th.hold && now > snoozeUntil) {
+      prompted = true; $('prompt').classList.add('show');
+    }
+    if (focusOn) { if (lvl === 'High') { if (!focusHighSince) focusHighSince = now; if (now - focusHighSince > 60000) { focusHighSince = 0; showBreak(); } } else focusHighSince = 0; }
+    const bar = live('na-bar').getBoundingClientRect();
+    $('prompt').style.top = Math.max(12, bar.bottom + 12) + 'px';
+    drawTrail();
+  }
+
+  const cv = $('trail'), ctx = cv.getContext('2d');
+  function drawTrail() {
+    cv.width = innerWidth; cv.height = innerHeight; if (!S.trail) return;
+    const now = performance.now(), pts = moves.filter(m => now - m.t < 2500);
+    ctx.lineWidth = 3; ctx.lineCap = 'round';
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i]; if (b.t - a.t > 250) { ctx.fillStyle = 'rgba(217,83,43,.6)'; ctx.beginPath(); ctx.arc(a.x, a.y, 6, 0, 7); ctx.fill(); continue; }
+      ctx.strokeStyle = `rgba(217,83,43,${0.15 + 0.7 * (1 - (now - b.t) / 2500)})`; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+  }
+
+  function findMain() {
+    return document.querySelector('[data-na-main]') || (() => {
+      const cands = [...document.querySelectorAll('#demo-frame article, #demo-frame main, #demo-frame [role=main], #demo-frame div, #demo-frame section')];
+      let best = null, bs = 0;
+      for (const el of cands) { const ps = el.querySelectorAll(':scope > p'); let t = 0; ps.forEach(p => t += p.textContent.length); if (t > bs) { bs = t; best = el; } }
+      return best;
+    })();
+  }
+  const NOISE = 'aside, nav, iframe, marquee, video[autoplay], [class*="ad-"], [class*="-ad"], [class^="ad"], [id^="ad"], [class*="banner"], [class*="sponsor"], [class*="promo"], [class*="comment"], [class*="sidebar"], [class*="related"], [class*="popup"], [class*="recommend"], [class*="ticker"], [class*="newsletter"], [data-na-noise]';
+
+  let stepTimers = [];
+  function clearSteps() {
+    stepTimers.forEach(t => clearTimeout(t)); stepTimers = [];
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active', 'done'));
+  }
+  function markStep(n) {
+    document.querySelectorAll('.step').forEach(el => {
+      const s = +el.dataset.step;
+      el.classList.toggle('active', s === n);
+      el.classList.toggle('done', s < n);
+    });
+  }
+
+  function setFocus(on, staged = true) {
+    if (on === focusOn) return; focusOn = on; $('prompt').classList.remove('show');
+    const html = document.documentElement;
+    const btn = live('btnFocus');
+    if (!on) {
+      clearSteps();
+      $('undo').style.display = 'none';
+      live('btnUndo').disabled = true;
+      btn.textContent = '直接開啟專注模式';
+      btn.classList.add('pri');
+      html.classList.remove('na-f1', 'na-f2', 'na-f3', 'na-f4', 'na-focus');
+      document.querySelectorAll('.na-hide,.na-slide').forEach(e => e.classList.remove('na-hide', 'na-slide', 'na-gone'));
+      setChunk(false); setRuler(false); toast('專注模式已關閉'); prompted = false; return;
+    }
+    const main = findMain(); if (main) main.setAttribute('data-na-main', '');
+    const keep = new Set(); let p = main; while (p) { keep.add(p); p = p.parentElement; }
+    const noise = new Set(document.querySelectorAll('#demo-frame ' + NOISE));
+    if (main) { let a = main; while (a && a !== document.body) { for (const sib of a.parentElement.children) if (!keep.has(sib) && sib !== host && !/^H[1-6]$/.test(sib.tagName) && !sib.querySelector('h1')) noise.add(sib); a = a.parentElement; } }
+    for (const el of document.querySelectorAll('#demo-frame *')) {
+      if (el === host || keep.has(el) || el.closest('[data-na-keep]')) continue;
+      const cs = getComputedStyle(el); if (cs.position === 'fixed' || cs.position === 'sticky') noise.add(el);
+    }
+    noise.forEach(el => { if (keep.has(el) || el.closest('[data-na-keep]') || el === host || host.contains(el) || !el.closest('#demo-frame')) noise.delete(el); });
+    document.querySelectorAll('#demo-frame video, #demo-frame audio').forEach(v => { try { v.pause(); v.autoplay = false; } catch (e) {} });
+    const ads = [...noise].filter(e => /ad|banner|sponsor|promo|iframe|marquee|popup/i.test((e.className || '') + ' ' + e.id + ' ' + e.tagName) || e.hasAttribute('data-na-ad'));
+    const rest = [...noise].filter(e => !ads.includes(e));
+    $('undo').style.display = 'block';
+    live('btnUndo').disabled = false;
+    btn.textContent = '關閉專注模式';
+    btn.classList.remove('pri');
+    clearSteps();
+    const steps = [
+      () => { html.classList.add('na-f1'); ads.forEach(e => e.classList.add('na-hide')); markStep(1); toast('① 促銷與廣告淡出 · Promos fade'); },
+      () => { html.classList.add('na-f2'); rest.forEach(e => e.classList.add('na-slide')); markStep(2); toast('② 彈窗、推薦與側欄滑走 · Popups leave'); },
+      () => { html.classList.add('na-f3'); markStep(3); toast('③ 降低彩度、停止倒數與輪播 · Pause motion'); },
+      () => { [...noise].forEach(e => e.classList.add('na-gone')); html.classList.add('na-f4', 'na-focus'); markStep(4); toast('④ 放大商品卡、清楚標價 · Larger cards');
+        const barH = live('na-bar').getBoundingClientRect().height;
+        const tool = document.querySelector('.shop-toolbar');
+        const target = tool || main || findMain();
+        if (target) {
+          const y = target.getBoundingClientRect().top + window.scrollY - barH - 8;
+          window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+        }
+        setTimeout(() => document.querySelectorAll('.step').forEach(el => { el.classList.add('done'); el.classList.remove('active'); }), 900); },
+    ];
+    const gap = staged ? 1100 : 0;
+    steps.forEach((fn, i) => stepTimers.push(setTimeout(fn, i * gap)));
+    window.dispatchEvent(new CustomEvent('na-focus-on'));
+  }
+
+  let rulerY = innerHeight / 2;
+  function placeRuler(y) { rulerY = y; if (!rulerOn) return; const h = 46, t = Math.max(0, y - h / 2); $('rt').style.height = t + 'px'; $('rb').style.top = t + 'px'; $('rbt').style.top = (t + h) + 'px'; $('rbt').style.height = 'auto'; }
+  function setRuler(on) { rulerOn = on; ['rt', 'rb', 'rbt'].forEach(i => $(i).style.display = on ? 'block' : 'none'); placeRuler(rulerY); live('btnRuler').classList.toggle('on', on); }
+
+  let chunkIdx = 0, paras = [];
+  function setChunk(on) {
+    chunkOn = on; const main = document.querySelector('[data-na-main]') || findMain();
+    paras = main ? [...main.querySelectorAll(':scope > p')] : [];
+    $('prog').style.display = on && paras.length ? 'block' : 'none';
+    $('cn').style.display = on && paras.length ? 'block' : 'none';
+    paras.forEach(p => p.classList.toggle('na-dim', on)); if (on) showChunk(0); else paras.forEach(p => p.classList.remove('na-cur', 'na-dim'));
+    live('btnChunk').classList.toggle('on', on);
+  }
+  function showChunk(i) { chunkIdx = clamp(i, 0, paras.length - 1); paras.forEach((p, k) => { p.classList.toggle('na-cur', k === chunkIdx); p.classList.toggle('na-dim', k !== chunkIdx); }); paras[chunkIdx]?.scrollIntoView({ behavior: 'smooth', block: 'center' }); $('prog').style.width = ((chunkIdx + 1) / paras.length * 100) + '%'; }
+  $('cnext').onclick = () => showChunk(chunkIdx + 1); $('cprev').onclick = () => showChunk(chunkIdx - 1);
+  addEventListener('keydown', e => { if (!chunkOn) return; if (e.key === 'ArrowRight' || e.key === 'j') showChunk(chunkIdx + 1); if (e.key === 'ArrowLeft' || e.key === 'k') showChunk(chunkIdx - 1); });
+
+  let brkTimer;
+  function showBreak() { let n = 60; $('brk').classList.add('show'); clearInterval(brkTimer); brkTimer = setInterval(() => { n--; $('brkt').textContent = '跟著圓圈慢慢吸氣、吐氣　' + n; if (n <= 0) hideBreak(); }, 1000); }
+  function hideBreak() { clearInterval(brkTimer); $('brk').classList.remove('show'); }
+  $('brkx').onclick = hideBreak;
+
+  let toastT; function toast(m) {
+    const t = $('toast'); t.textContent = m; t.style.opacity = 1;
+    const bar = live('na-bar').getBoundingClientRect();
+    t.style.top = (bar.bottom + 10) + 'px';
+    clearTimeout(toastT); toastT = setTimeout(() => t.style.opacity = 0, 1800);
+  }
+
+  function cmd(c, v) {
+    switch (c) {
+      case 'focus': setFocus(v === undefined ? !focusOn : !!v, true); break;
+      case 'focusInstant': setFocus(!!v, false); break;
+      case 'chunk': setChunk(v === undefined ? !chunkOn : !!v); break;
+      case 'ruler': setRuler(v === undefined ? !rulerOn : !!v); break;
+      case 'break': showBreak(); break;
+      case 'reset':
+        calib.start = performance.now(); calib.sum = 0; calib.n = 0; calib.base = null;
+        moves = []; scrolls = []; score = 0; prompted = false; snoozeUntil = 0; hideBreak();
+        if (focusOn) setFocus(false);
+        break;
+    }
+    return { score: Math.round(score), focusOn, chunkOn, rulerOn };
+  }
+
+  $('undo').onclick = () => setFocus(false);
+  $('yes').onclick = () => setFocus(true);
+  $('no').onclick = () => { $('prompt').classList.remove('show'); prompted = false; snoozeUntil = performance.now() + 60000; };
+
+  live('btnFocus').onclick = () => setFocus(!focusOn, true);
+  live('btnRuler').onclick = () => setRuler(!rulerOn);
+  live('btnChunk').onclick = () => setChunk(!chunkOn);
+  live('btnUndo').onclick = () => setFocus(false);
+  live('btnReset').onclick = () => cmd('reset');
+  live('demoMode').onchange = e => { S.demoMode = e.target.checked; highSince = 0; };
+
+  function pinFloats() {
+    const frame = document.getElementById('demo-frame');
+    if (!frame) return;
+    const r = frame.getBoundingClientRect();
+    // Keep floats only while the demo stage still reaches the bottom of the viewport
+    const off = !(r.bottom >= innerHeight - 8 && r.top < innerHeight - 40);
+    frame.querySelectorAll('.popup-chat, .promo-strip').forEach(el => {
+      if (el.classList.contains('na-hide') || el.classList.contains('na-slide') || el.classList.contains('na-gone')) {
+        el.style.visibility = '';
+        return;
+      }
+      el.style.position = 'fixed';
+      el.style.visibility = off ? 'hidden' : 'visible';
+      const inset = Math.max(0, innerHeight - r.bottom);
+      el.style.bottom = el.classList.contains('popup-chat') ? (inset + 20) + 'px' : inset + 'px';
+    });
+  }
+  addEventListener('scroll', pinFloats, { passive: true });
+  addEventListener('resize', pinFloats);
+  pinFloats();
+
+  document.addEventListener('na-cmd', e => { const d = e.detail || {}; if (d.settings) Object.assign(S, d.settings); if (d.cmd) cmd(d.cmd, d.value); });
+  setInterval(() => { if (S.enabled) compute(); }, 400);
+})();
+
+
+/* Shop extras: countdown, viewing toasts, cart, search. Paused during Focus Mode. */
+(function syncBarH(){
+  const set = () => {
+    const bar = document.getElementById('na-bar');
+    if (bar) document.documentElement.style.setProperty('--na-bar-h', bar.getBoundingClientRect().height + 'px');
+  };
+  set(); addEventListener('resize', set); setInterval(set, 500);
+})();
+(function pinCoupon(){
+  const run = () => {
+    const coupon = document.getElementById('coupon-popup');
+    const frame = document.getElementById('demo-frame');
+    if (!coupon || !frame) return;
+    if (coupon.classList.contains('na-hide') || coupon.classList.contains('na-slide') || coupon.classList.contains('na-gone')) {
+      coupon.style.visibility = '';
+      return;
+    }
+    const r = frame.getBoundingClientRect();
+    const off = r.bottom < innerHeight * 0.45 || r.top > innerHeight - 80;
+    coupon.style.visibility = off ? 'hidden' : (coupon.style.display === 'none' ? '' : 'visible');
+    const toasts = document.getElementById('view-toasts');
+    if (toasts) toasts.style.visibility = off ? 'hidden' : '';
+  };
+  addEventListener('scroll', run, { passive: true });
+  addEventListener('resize', run);
+  setInterval(run, 400);
+})();
+
+(() => {
+  const frozen = () => document.documentElement.classList.contains('na-f3') || document.documentElement.classList.contains('na-focus');
+  // countdown
+  let remain = 2 * 3600 + 13 * 60 + 45;
+  const pad = n => String(n).padStart(2, '0');
+  const paintCd = () => {
+    const h = Math.floor(remain / 3600), m = Math.floor((remain % 3600) / 60), s = remain % 60;
+    document.querySelectorAll('[data-cd]').forEach(el => { el.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`; });
+  };
+  paintCd();
+  setInterval(() => { if (frozen() || remain <= 0) return; remain--; paintCd(); }, 1000);
+
+  // viewing toasts
+  const lines = [
+    '高雄的林先生剛買了四季春茶葉禮盒',
+    '有 28 人正在看 檜木杯墊四件組',
+    '台北的陳小姐把羊毛蓋毯加入購物車',
+    '有 16 人正在看 手沖陶瓷濾杯',
+    '台中的吳先生剛買了黑豆蔭油',
+    '有 9 人正在看 帆布旅行後背包',
+  ];
+  let li = 0;
+  const box = document.getElementById('view-toasts');
+  setInterval(() => {
+    if (frozen() || !box || box.style.visibility === "hidden") return;
+    const el = document.createElement('div');
+    el.className = 'vt';
+    el.textContent = '🔔 ' + lines[li++ % lines.length];
+    box.appendChild(el);
+    setTimeout(() => el.remove(), 3200);
+  }, 2800);
+
+  // coupon
+  const coupon = document.getElementById('coupon-popup');
+  const closeCoupon = () => { if (coupon) coupon.style.display = 'none'; };
+  document.getElementById('coupon-x')?.addEventListener('click', closeCoupon);
+  document.getElementById('coupon-ok')?.addEventListener('click', closeCoupon);
+  setTimeout(() => {
+    if (coupon && !frozen()) {
+      const bar = document.getElementById('na-bar');
+      const top = bar ? (bar.getBoundingClientRect().bottom + 24) : 220;
+      coupon.style.top = top + 'px';
+      coupon.style.transform = 'translateX(-50%)';
+      coupon.style.display = 'block';
+    }
+  }, 1200);
+
+  // search + cart
+  const products = {
+    "p1": {name:'手沖陶瓷濾杯', price:890},
+    "p2": {name:'四季春茶葉禮盒', price:1280},
+    "p3": {name:'亞麻肩背購物袋', price:590},
+    "p4": {name:'檜木杯墊四件組', price:420},
+    "p5": {name:'黑豆蔭油貳瓶裝', price:360},
+    "p6": {name:'羊毛蓋毯', price:1980},
+    "p7": {name:'黃銅直角鋼筆', price:1450},
+    "p8": {name:'柚花香氛蠟燭', price:680},
+    "p9": {name:'帆布旅行後背包', price:1680},
+    "p10": {name:'有機棉短襪三入', price:390},
+    "p11": {name:'一年用空白手帳', price:520},
+    "p12": {name:'雙層玻璃水壺', price:750}
+  };
+  const items = [];
+  const cartBtn = document.getElementById('cart-btn');
+  const drawer = document.getElementById('cart-drawer');
+  const countEl = document.getElementById('cart-count');
+  const listEl = document.getElementById('cart-items');
+  const totalEl = document.getElementById('cart-total');
+  function renderCart() {
+    countEl.textContent = items.length;
+    listEl.innerHTML = items.length
+      ? items.map((it, i) => `<li><span>${it.name}</span><span>NT$ ${it.price.toLocaleString()} <button type="button" data-rm="${i}" style="border:0;background:#eee;border-radius:6px;padding:2px 6px;cursor:pointer">移除</button></span></li>`).join('')
+      : '<li>購物車是空的</li>';
+    totalEl.textContent = items.reduce((s, it) => s + it.price, 0).toLocaleString();
+  }
+  document.getElementById('demo-frame').addEventListener('click', e => {
+    const add = e.target.closest('[data-add]');
+    if (add) {
+      const p = products[add.getAttribute('data-add')];
+      if (p) { items.push(p); renderCart(); }
+    }
+  });
+  listEl.addEventListener('click', e => {
+    const rm = e.target.closest('[data-rm]');
+    if (rm) { items.splice(+rm.getAttribute('data-rm'), 1); renderCart(); }
+  });
+  cartBtn.addEventListener('click', () => drawer.classList.toggle('open'));
+  document.getElementById('cart-close').addEventListener('click', () => drawer.classList.remove('open'));
+  document.getElementById('cart-checkout').addEventListener('click', () => {
+    alert(items.length ? '這是示範結帳，不會真正收費。' : '購物車還是空的。');
+  });
+  renderCart();
+
+  const q = document.getElementById('shop-q');
+  const form = document.getElementById('shop-search');
+  const filter = () => {
+    const s = (q.value || '').trim().toLowerCase();
+    document.querySelectorAll('.product-card').forEach(card => {
+      const hit = !s || (card.getAttribute('data-name') || '').toLowerCase().includes(s);
+      card.style.display = hit ? '' : 'none';
+    });
+  };
+  form.addEventListener('submit', e => { e.preventDefault(); filter(); });
+  q.addEventListener('input', filter);
+})();
+
+</script>
+</body>
+</html>
