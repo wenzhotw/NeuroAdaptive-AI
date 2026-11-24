@@ -107,9 +107,9 @@ h1,h2,.serif{font-family:"Noto Serif TC","Noto Serif CJK TC",serif}
 #demo-frame .fake-video::after{content:"";position:absolute;left:0;bottom:0;height:4px;background:red;animation:vp 6s linear infinite}
 @keyframes vp{from{width:0}to{width:100%}}
 #demo-frame .comment-section{margin-top:20px;background:#fafafa;padding:10px;font-size:13px}
-#demo-frame .popup-chat{position:absolute;right:20px;bottom:20px;width:230px;background:#25d366;color:#fff;padding:12px;border-radius:12px;font-size:13px;animation:bounce 1.4s infinite;z-index:60}
+#demo-frame .popup-chat{position:fixed;right:20px;bottom:20px;width:230px;background:#25d366;color:#fff;padding:12px;border-radius:12px;font-size:13px;animation:bounce 1.4s infinite;z-index:60}
 @keyframes bounce{50%{transform:translateY(-10px)}}
-#demo-frame .promo-strip{position:absolute;left:0;bottom:0;width:60%;background:#ffd400;color:#000;padding:10px 20px;font-weight:800;z-index:59}
+#demo-frame .promo-strip{position:fixed;left:0;bottom:0;width:60%;background:#ffd400;color:#000;padding:10px 20px;font-weight:800;z-index:59}
 #demo-frame .badge-new{display:inline-block;background:#f00;color:#fff;font-size:11px;padding:1px 5px;border-radius:3px;animation:flash 0.8s steps(2) infinite}
 
 /* Focus Mode – scoped to the demo stage so page chrome stays in colour */
@@ -542,6 +542,27 @@ footer.site a{color:#f4cf5d}
   live('btnUndo').onclick = () => setFocus(false);
   live('btnReset').onclick = () => cmd('reset');
   live('demoMode').onchange = e => { S.demoMode = e.target.checked; highSince = 0; };
+
+  function pinFloats() {
+    const frame = document.getElementById('demo-frame');
+    if (!frame) return;
+    const r = frame.getBoundingClientRect();
+    // Keep floats only while the demo stage still reaches the bottom of the viewport
+    const off = !(r.bottom >= innerHeight - 8 && r.top < innerHeight - 40);
+    frame.querySelectorAll('.popup-chat, .promo-strip').forEach(el => {
+      if (el.classList.contains('na-hide') || el.classList.contains('na-slide') || el.classList.contains('na-gone')) {
+        el.style.visibility = '';
+        return;
+      }
+      el.style.position = 'fixed';
+      el.style.visibility = off ? 'hidden' : 'visible';
+      const inset = Math.max(0, innerHeight - r.bottom);
+      el.style.bottom = el.classList.contains('popup-chat') ? (inset + 20) + 'px' : inset + 'px';
+    });
+  }
+  addEventListener('scroll', pinFloats, { passive: true });
+  addEventListener('resize', pinFloats);
+  pinFloats();
 
   document.addEventListener('na-cmd', e => { const d = e.detail || {}; if (d.settings) Object.assign(S, d.settings); if (d.cmd) cmd(d.cmd, d.value); });
   setInterval(() => { if (S.enabled) compute(); }, 400);
