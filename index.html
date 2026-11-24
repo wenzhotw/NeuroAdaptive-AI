@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="na-exclude" content="false">
+<title>NeuroAdaptive AI 示範頁｜專注模式 Focus Mode</title>
+<meta name="description" content="不用安裝擴充功能。依滑鼠與捲動節奏估算瀏覽負荷，並示範專注模式如何把雜亂網頁變成單欄閱讀。自我覺察工具，不是醫療診斷。資料只留在這個分頁。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#e9dcc3; --cream:#fbf6ea; --card:#fffdf7; --ink:#2b2622;
+  --muted:#5c564f; --line:#e8e1d3; --red:#d9532b; --orange:#f0a33a;
+  --green:#2f7d5b; --blue:#5b86c5; --teal:#6fb3a8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Noto Sans TC","Noto Sans CJK TC","PingFang TC","Microsoft JhengHei",sans-serif;}
+body{min-width:0}
+.en{display:block;font-size:.82em;font-weight:500;color:var(--muted);letter-spacing:.01em}
+h1,h2,.serif{font-family:"Noto Serif TC","Noto Serif CJK TC",serif}
+
+/* ---------- page chrome ---------- */
+.hero,.bar,.explainer,footer.site{position:relative}
+.hero{background:var(--cream);border-bottom:1px solid var(--line);padding:16px 20px 12px}
+.hero-inner,.bar-inner,.explainer-inner,footer.site .inner{max-width:1120px;margin:0 auto}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--green);text-transform:none;margin:0 0 4px}
+.hero h1{margin:0 0 2px;font-size:clamp(24px,3.4vw,34px);line-height:1.2}
+.tagline{margin:0 0 8px;font-size:14px;font-weight:700}
+.intro{margin:0 0 8px;font-size:14px;line-height:1.65;color:var(--ink);max-width:82ch}
+.intro .en{display:inline;margin-left:.4em}
+.disclaimer{margin:0;padding:7px 12px;background:#f3ede0;border-radius:10px;font-size:12.5px;line-height:1.55;max-width:82ch}
+.disclaimer .en{display:inline;margin-left:.35em}
+.disclaimer b{font-weight:800}
+
+.bar{position:sticky;top:0;z-index:80;background:rgba(251,246,234,.96);backdrop-filter:blur(8px);
+  border-bottom:2px solid var(--line);box-shadow:0 4px 16px rgba(43,38,34,.06)}
+.bar-inner{padding:8px 16px 10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.meter{display:flex;align-items:center;gap:10px;min-width:200px}
+.ring{width:56px;height:56px;position:relative;flex:none}
+.ring svg{transform:rotate(-90deg);width:56px;height:56px}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px}
+.meter-copy .lbl{font-size:12px;color:var(--muted)}
+.meter-copy .lvl{font-size:18px;font-weight:800;line-height:1.2}
+.comps{display:flex;flex-direction:column;gap:2px;min-width:160px;flex:1;max-width:240px;font-size:10px;color:#555}
+.comps .row{display:grid;grid-template-columns:1fr 28px;gap:6px;align-items:center}
+.comps .track{height:5px;background:#eee;border-radius:3px;overflow:hidden}
+.comps .track i{display:block;height:100%;background:var(--blue);width:0;transition:width .3s}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;flex:2}
+.btn{border:0;border-radius:10px;padding:9px 14px;font-size:14px;font-weight:700;cursor:pointer;
+  font-family:inherit;background:#eee;color:var(--ink)}
+.btn:hover{filter:brightness(.97)}
+.btn.pri{background:var(--green);color:#fff}
+.btn.warn{background:var(--ink);color:#fff}
+.btn.on{background:var(--teal);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.toggle{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;background:#fff;border:1px solid var(--line);
+  border-radius:10px;padding:8px 10px;cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--green)}
+.hint{flex-basis:100%;margin:0;font-size:11.5px;color:var(--muted);line-height:1.45}
+.hint .en{display:inline;margin-left:.35em}
+
+.steps{flex-basis:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.step{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 8px;
+  transition:border-color .3s, background .3s, transform .3s}
+.step b{display:block;font-size:12.5px}
+.step .en{font-size:10.5px}
+.step.active{border-color:var(--green);background:#eef6f1;transform:translateY(-1px);box-shadow:0 4px 10px rgba(47,125,91,.12)}
+.step.done{border-color:#cfe0d6;background:#f4faf6}
+.step .n{display:inline-block;width:20px;height:20px;border-radius:50%;background:#eee;color:#333;font-size:12px;
+  font-weight:800;text-align:center;line-height:20px;margin-right:4px}
+.step.active .n,.step.done .n{background:var(--green);color:#fff}
+
+/* ---------- demo news page ---------- */
+#demo-frame{background:#fff;color:#222;font-family:"Noto Sans TC","Noto Sans CJK TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  min-height:80vh;position:relative;overflow:hidden}
+#demo-frame .topbar{background:#c4161c;color:#fff;display:flex;align-items:center;gap:20px;padding:8px 20px;position:relative;z-index:50}
+#demo-frame .topbar b{font-size:24px}
+#demo-frame .topbar nav a{color:#fff;margin-right:14px;text-decoration:none;font-size:14px}
+#demo-frame .ticker{background:#111;color:#ffd400;white-space:nowrap;overflow:hidden;font-size:14px;padding:5px 0}
+#demo-frame .ticker span{display:inline-block;padding-left:100%;animation:tick 14s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+#demo-frame .ad-top{margin:10px auto;width:min(960px,calc(100% - 20px));height:90px;
+  background:linear-gradient(90deg,#ff3d7f,#ffb300,#00c2ff,#ff3d7f);background-size:300% 100%;
+  animation:grad 3s linear infinite;color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(16px,3vw,28px);font-weight:900;border-radius:6px}
+@keyframes grad{to{background-position:300% 0}}
+#demo-frame .wrap{display:flex;gap:20px;width:min(1200px,100%);margin:0 auto;padding:0 10px}
+#demo-frame .left-sidebar{width:200px;font-size:13px;flex:none}
+#demo-frame .left-sidebar li{margin:8px 0;color:#c4161c}
+#demo-frame .content{flex:1;min-width:0}
+#demo-frame .content h1{font-size:28px;margin:8px 0}
+#demo-frame .meta{color:#999;font-size:12px}
+#demo-frame .content p{font-size:15px;line-height:1.6}
+#demo-frame .ad-inline{background:#fff3c4;border:3px dashed #f60;padding:14px;margin:14px 0;font-weight:700;animation:shake .6s infinite}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+#demo-frame .sidebar{width:300px;flex:none}
+#demo-frame .ad-box{height:250px;background:#222;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:14px;border-radius:6px;font-size:22px;font-weight:800;animation:flash 1s steps(2) infinite}
+@keyframes flash{50%{background:#e91e63}}
+#demo-frame .spin{width:60px;height:60px;border:8px solid #fff;border-top-color:#ffd400;border-radius:50%;animation:sp 1s linear infinite;margin-bottom:10px}
+@keyframes sp{to{transform:rotate(360deg)}}
+#demo-frame .related-list div{padding:8px;border-bottom:1px solid #eee;font-size:13px}
+#demo-frame .related-list .hot{color:#c4161c;font-weight:700}
+#demo-frame .fake-video{background:#000;color:#fff;height:170px;display:flex;align-items:center;justify-content:center;border-radius:6px;position:relative;overflow:hidden}
+#demo-frame .fake-video::after{content:"";position:absolute;left:0;bottom:0;height:4px;background:red;animation:vp 6s linear infinite}
+@keyframes vp{from{width:0}to{width:100%}}
+#demo-frame .comment-section{margin-top:20px;background:#fafafa;padding:10px;font-size:13px}
+#demo-frame .popup-chat{position:absolute;right:20px;bottom:20px;width:230px;background:#25d366;color:#fff;padding:12px;border-radius:12px;font-size:13px;animation:bounce 1.4s infinite;z-index:60}
+@keyframes bounce{50%{transform:translateY(-10px)}}
+#demo-frame .promo-strip{position:absolute;left:0;bottom:0;width:60%;background:#ffd400;color:#000;padding:10px 20px;font-weight:800;z-index:59}
+#demo-frame .badge-new{display:inline-block;background:#f00;color:#fff;font-size:11px;padding:1px 5px;border-radius:3px;animation:flash 0.8s steps(2) infinite}
+
+/* Focus Mode – scoped to the demo stage so page chrome stays in colour */
+.na-hide{transition:opacity .9s ease, filter .9s ease !important;opacity:0 !important;filter:blur(4px) !important;pointer-events:none !important}
+.na-slide{transition:transform 1s cubic-bezier(.6,0,.4,1), opacity 1s ease !important;transform:translateX(120%) !important;opacity:0 !important;pointer-events:none !important}
+.na-gone{display:none !important}
+html.na-f3 #demo-frame{background:#f6f1e7 !important;transition:background .8s}
+html.na-f3 #demo-frame .wrap{filter:saturate(.25) !important;transition:filter 1s ease}
+html.na-f3 #demo-frame *{animation-play-state:paused !important;animation:none !important;transition-property:opacity,transform,filter,background,font-size,line-height,max-width !important}
+html.na-f3 #demo-frame img[src$=".gif"]{visibility:hidden !important}
+html.na-f4 #demo-frame .wrap{display:block;width:auto;max-width:none;padding:0 16px;filter:saturate(.25) !important}
+html.na-f4 [data-na-main]{max-width:680px !important;margin:24px auto !important;float:none !important;width:auto !important;font-size:21px !important;line-height:2 !important;letter-spacing:.04em !important;color:#2b2622 !important;background:transparent !important;transition:all .9s ease !important}
+html.na-f4 [data-na-main] p{font-size:21px !important;line-height:2 !important;margin:0 0 1.2em !important;transition:opacity .4s}
+html.na-focus #demo-frame h1{font-size:34px !important;max-width:680px;margin:40px auto 10px !important;color:#2b2622 !important}
+p.na-dim{opacity:.18 !important}
+p.na-cur{opacity:1 !important;background:#fffdf7;border-radius:8px;box-shadow:0 0 0 8px #fffdf7}
+
+/* ---------- explainer ---------- */
+.explainer{background:var(--cream);padding:48px 20px 56px;border-top:1px solid var(--line)}
+.explainer h2{margin:0 0 8px;font-size:clamp(24px,3vw,32px)}
+.explainer .lead{margin:0 0 24px;font-size:16px;line-height:1.7;max-width:70ch}
+.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:start}
+.ba{width:100%;border-radius:14px;box-shadow:0 10px 28px rgba(43,38,34,.14);border:2px solid var(--line);background:#fff}
+.ba-cap{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--muted);margin:8px 2px 0}
+.cards{display:grid;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h3{margin:0 0 6px;font-size:16px}
+.card p,.card li{margin:0;font-size:14px;line-height:1.7}
+.card ol{margin:0;padding-left:1.2em}
+.card .lock{font-size:13px;color:var(--muted)}
+footer.site{background:#2b2622;color:#fbf6ea;padding:20px;font-size:13px;line-height:1.6}
+footer.site a{color:#f4cf5d}
+@media (max-width:900px){
+  .grid,.steps{grid-template-columns:1fr 1fr}
+  #demo-frame .wrap{flex-direction:column;width:100%}
+  #demo-frame .left-sidebar,#demo-frame .sidebar{width:100%}
+  #demo-frame .popup-chat{right:10px;bottom:56px;width:min(230px,70vw)}
+  #demo-frame .promo-strip{width:100%}
+  #demo-frame .topbar nav{display:none}
+  .comps{display:none}
+}
+@media (max-width:600px){
+  .steps{grid-template-columns:1fr 1fr}
+  .hero{padding:12px 14px 10px}
+  .hero h1{font-size:24px}
+  .intro{font-size:13px}
+  .ring{width:56px;height:56px}
+}
+</style>
+</head>
+<body>
+<header class="hero" data-na-keep>
+  <div class="hero-inner">
+    <p class="eyebrow">人工智慧實務專題｜成果展示示範 · Course project showcase</p>
+    <h1>NeuroAdaptive AI</h1>
+    <p class="tagline">瀏覽負荷自我覺察工具 <span class="en">A self-awareness tool for browsing load</span></p>
+    <p class="intro">這個示範會依你的滑鼠與捲動節奏、對照個人基準，估算目前的「注意力負荷」；偏高時會詢問你要不要開啟專注模式，把廣告、側欄與動畫收成單欄閱讀。所有計算只留在這個分頁，不會上傳。<br><span class="en">It senses browsing load from mouse and scroll patterns against a personal baseline, then offers Focus Mode. Data stays in this tab.</span></p>
+    <p class="disclaimer"><b>本工具是自我覺察的輔助，不是醫療診斷。</b> 下面的雜亂新聞頁已內建與擴充功能相同的規則，不需安裝任何東西。<span class="en">A self-awareness aid — not a medical diagnosis. No extension to install.</span></p>
+  </div>
+</header>
+
+<div class="bar" id="na-bar" data-na-keep>
+  <div class="bar-inner">
+    <div class="meter" id="meter" title="即時負荷分數 Live load score">
+      <div class="ring">
+        <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="26" stroke="#eee" stroke-width="7" fill="none"/>
+          <circle id="arc" cx="32" cy="32" r="26" stroke="#2f7d5b" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4" style="transition:all .4s"/>
+        </svg>
+        <div class="num" id="num">0</div>
+      </div>
+      <div class="meter-copy">
+        <div class="lbl">注意力負荷（即時）<span class="en" style="display:inline;margin-left:4px">Live load score</span></div>
+        <div class="lvl" id="lvl">低</div>
+      </div>
+    </div>
+    <div class="comps" id="comps" aria-hidden="true"></div>
+    <div class="actions">
+      <label class="toggle"><input type="checkbox" id="demoMode" checked> Demo 模式<span class="en" style="display:inline;margin-left:4px">threshold 50 · 1.5s</span></label>
+      <button class="btn pri" id="btnFocus" type="button">直接開啟專注模式</button>
+      <button class="btn" id="btnRuler" type="button">閱讀尺</button>
+      <button class="btn" id="btnChunk" type="button">段落模式</button>
+      <button class="btn warn" id="btnUndo" type="button" disabled>一鍵復原</button>
+      <button class="btn" id="btnReset" type="button">重置</button>
+    </div>
+    <p class="hint">在下面的示範頁移動滑鼠或來回捲動，分數會上升；Demo 模式約 1.5 秒後會出現提示，也可直接按按鈕。<span class="en">Move or scroll to raise the score, or turn Focus Mode on manually.</span></p>
+    <div class="steps" id="steps" aria-label="專注模式四個步驟">
+      <div class="step" data-step="1"><b><span class="n">1</span>廣告淡出</b><span class="en">Ads fade</span></div>
+      <div class="step" data-step="2"><b><span class="n">2</span>側欄與彈窗滑走</b><span class="en">Sidebars and popups leave</span></div>
+      <div class="step" data-step="3"><b><span class="n">3</span>降低彩度、停止動畫</b><span class="en">Desaturate and pause motion</span></div>
+      <div class="step" data-step="4"><b><span class="n">4</span>放大成單欄閱讀</b><span class="en">Enlarge to one column</span></div>
+    </div>
+  </div>
+</div>
+
+<section id="demo-frame" aria-label="雜亂示範新聞頁 Cluttered demo article">
+  <div class="topbar"><b>每日快訊 Daily Buzz</b><nav><a>首頁</a><a>即時</a><a>政治</a><a>財經</a><a>科技</a><a>娛樂</a><a>運動</a><a>生活</a><a>影音</a><a>直播</a></nav></div>
+  <div class="ticker"><span>⚡ 快訊：颱風動態更新 ｜ 股市盤中震盪 ｜ 週末連假交通管制 ｜ 限時優惠倒數 03:12:45 ｜ 熱搜：新手機開箱 ｜ 本日最多人看：十大夜市排行</span></div>
+  <div class="ad-top" data-na-ad>🔥 雙 11 延長賽！全館 1 折起 點我搶 🔥</div>
+  <div class="wrap">
+    <aside class="left-sidebar"><b>熱門分類</b><ul><li>即時新聞 <span class="badge-new">NEW</span></li><li>網友熱議</li><li>今日運勢</li><li>開箱評測 <span class="badge-new">HOT</span></li><li>美食地圖</li><li>星座</li><li>抽獎活動</li></ul></aside>
+    <article class="content" data-na-main>
+      <h1>大學生如何在資訊爆炸的時代找回專注力？</h1>
+      <div class="meta">記者 示範 ／ 2026-11-23　｜　分享 👍 2.3萬　💬 518</div>
+      <p>現代人每天面對大量的通知、廣告與推薦內容。研究顯示，當一個網頁同時有多個會動的元素時，讀者需要花更多力氣才能把注意力留在正文上，閱讀速度與理解程度也會跟著下降。</p>
+      <p>許多大學生表示，打開一篇文章後，常常讀不到兩段就被旁邊的廣告或「你可能也喜歡」吸走，等回過神來，已經開了十幾個分頁。這不一定是個人意志力的問題，而是介面設計本身就在爭奪注意力。</p>
+      <div class="ad-inline" data-na-ad>📢 贊助內容：三分鐘學會投資理財！立即加入 LINE 好友領取免費講義 👉👉👉</div>
+      <p>心理學中常用「認知負荷」來描述大腦在處理資訊時承受的壓力。當外在的干擾越多，留給理解內容本身的資源就越少。對於本來就比較容易被外在刺激吸引的人來說，這種影響會更明顯。</p>
+      <p>有些研究嘗試用眼動儀或腦波儀來測量注意力，但這些設備昂貴，也不適合在日常生活中使用。相對地，滑鼠移動是每個人上網時都會產生的行為資料：移動速度忽快忽慢、方向頻繁改變、來回捲動頁面，都可能是注意力被拉扯的線索。</p>
+      <p>如果瀏覽器能察覺到這些訊號，並在適當的時候提供協助，例如把干擾元素收起來、放大字距、一次只呈現一段內容，或許就能讓閱讀變得更輕鬆。重點是讓使用者自己決定要不要開啟，而不是替使用者貼上標籤。</p>
+      <p>專家建議，除了工具的輔助，也可以養成固定時間休息的習慣，例如每閱讀二十五分鐘就起身走動一分鐘，讓大腦有機會重新整理。適合自己的節奏，比硬撐著讀完更重要。</p>
+      <p>最後，設計者也應該思考：一個網頁是否真的需要那麼多會動的東西？讓介面配合人的大腦，而不是要求人去適應介面，或許才是未來網頁設計該走的方向。</p>
+      <div class="comment-section"><b>留言（518）</b><p>網友A：好有感，我每次都被廣告分心 😂</p><p>網友B：求推薦好用的擴充功能</p><p>網友C：+1</p></div>
+    </article>
+    <aside class="sidebar">
+      <div class="ad-box" data-na-ad><div class="spin"></div>限時搶購 ⏰<br>只剩 3 件！</div>
+      <div class="fake-video">▶ 自動播放：本週最狂開箱影片</div>
+      <h3>🔥 熱門排行</h3>
+      <div class="related-list"><div class="hot">1. 這家夜市小吃排隊三小時 <span class="badge-new">HOT</span></div><div>2. 新手機實測，續航真的有變好嗎？</div><div class="hot">3. 震驚！你絕對不知道的 10 個冷知識</div><div>4. 週末去哪玩？北部景點懶人包</div><div>5. 網友瘋傳的神秘甜點</div><div>6. 本週星座運勢大公開</div></div>
+      <div class="ad-box" data-na-ad style="height:200px">💳 辦卡首刷送好禮</div>
+    </aside>
+  </div>
+  <div class="promo-strip" data-na-ad>🎁 訂閱電子報，立即領取 100 元購物金！ ✕</div>
+  <div class="popup-chat">💬 小編在線上！有什麼問題都可以問我喔～</div>
+  <div style="height:200px"></div>
+</section>
+
+<section class="explainer" id="explainer" data-na-keep>
+  <div class="explainer-inner">
+    <h2>開啟之後會怎樣？</h2>
+    <p class="lead">按下「開啟」後，頁面會用大約四秒、分成四步把干擾收起來。你可以隨時復原，也可以再加上閱讀尺或段落模式。<span class="en">Focus Mode runs four visible steps, then leaves you in control — with one-click undo.</span></p>
+    <div class="grid">
+      <figure style="margin:0">
+        <img class="ba" src="before_after.png" alt="開啟前與專注模式的對照：左側是充滿廣告、側欄與彈窗的新聞頁，右側是低彩度、單欄的閱讀畫面。">
+        <div class="ba-cap"><span>開啟前 · Before</span><span>專注模式 · After Focus Mode</span></div>
+      </figure>
+      <div class="cards">
+        <div class="card">
+          <h3>四個步驟 · The four steps</h3>
+          <ol>
+            <li>廣告淡出　<span class="en" style="display:inline">Ads fade</span></li>
+            <li>側欄、彈窗與推薦滑走　<span class="en" style="display:inline">Sidebars and popups slide away</span></li>
+            <li>降低彩度、停止動畫　<span class="en" style="display:inline">Desaturate and stop animations</span></li>
+            <li>放大字級與行距，變成單欄　<span class="en" style="display:inline">Enlarge into one column</span></li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>還可以再做的事 · Optional extras</h3>
+          <p>閱讀尺只照亮你正在看的那一行；段落模式一次只亮一段，可用按鈕或 ← → 鍵切換。左下角與上方工具列都有「一鍵復原」。</p>
+        </div>
+        <div class="card">
+          <h3>資料留在本機 · Data stays local</h3>
+          <p class="lock">滑鼠與捲動只在這個分頁的記憶體裡計算，不會上傳，也不會存下原始軌跡。分數規則沿用專案 v0.1 的權重，並加上瀏覽時的捲動訊號；這是透明的原型規則，尚未經資料驗證。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site" data-na-keep>
+  <div class="inner">
+    NeuroAdaptive AI　人工智慧實務專題成果展示示範頁。自我覺察工具，不是醫療診斷。　
+    <a href="https://github.com/shinshinchang/NeuroAdaptive-AI/pull/1">GitHub PR</a>
+  </div>
+</footer>
+
+<script>
+/* NeuroAdaptive AI – standalone page build of the Chrome extension content script.
+   Scoring window, v0.1 weights, baseline, Demo-mode thresholds, and Focus Mode steps
+   are the same as extension/content.js. No chrome.* APIs; data stays in this tab.
+   Self-awareness tool — not a medical diagnosis. */
+(() => {
+  const WINDOW_MS = 12000, CALIB_MS = 25000;
+  const calib = { start: performance.now(), sum: 0, n: 0, base: null };
+  const S = { enabled: true, sensitivity: 1.0, demoMode: true, trail: false, autoPrompt: true };
+  let moves = [], scrolls = [], lastScrollY = window.scrollY, lastScrollDir = 0, segStart = window.scrollY;
+  let score = 0, comps = {}, highSince = 0, prompted = false, snoozeUntil = 0;
+  let focusOn = false, chunkOn = false, rulerOn = false, focusHighSince = 0;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  const host = document.createElement('div'); host.id = 'na-root';
+  const root = host.attachShadow({ mode: 'open' });
+  root.innerHTML = `<style>
+  :host{all:initial}
+  *{box-sizing:border-box;font-family:"Noto Sans TC","Noto Sans CJK TC","PingFang TC","Microsoft JhengHei",sans-serif}
+  .prompt{position:fixed;top:120px;right:16px;z-index:2147483646;width:330px;background:#fffdf7;border-radius:16px;padding:18px;box-shadow:0 12px 32px rgba(0,0,0,.25);border:2px solid #f0a33a;transform:translateY(-10px);opacity:0;transition:all .35s;pointer-events:none}
+  .prompt.show{opacity:1;transform:none;pointer-events:auto}
+  .prompt h3{margin:0 0 6px;font-size:17px;color:#222}.prompt p{margin:0 0 14px;font-size:13px;color:#555;line-height:1.6}
+  .btn{border:0;border-radius:10px;padding:9px 16px;font-size:14px;font-weight:700;cursor:pointer;margin-right:8px;font-family:inherit}
+  .pri{background:#2f7d5b;color:#fff}.sec{background:#eee;color:#333}
+  .ruler{position:fixed;left:0;right:0;z-index:2147483640;pointer-events:none;display:none}
+  .rtop{top:0;background:rgba(30,25,20,.45)}.rbot{bottom:0;background:rgba(30,25,20,.45)}
+  .rband{position:fixed;left:0;right:0;height:46px;border-top:2px solid #f0a33a;border-bottom:2px solid #f0a33a;pointer-events:none;z-index:2147483641;display:none}
+  .prog{position:fixed;top:0;left:0;height:6px;background:#2f7d5b;z-index:2147483647;width:0;transition:width .3s;display:none}
+  .chunknav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:2147483646;display:none;background:#fffdf7;border-radius:14px;padding:8px;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+  .brk{position:fixed;inset:0;z-index:2147483647;background:rgba(246,241,231,.96);display:none;align-items:center;justify-content:center;flex-direction:column;color:#333}
+  .brk.show{display:flex}.breath{width:140px;height:140px;border-radius:50%;background:#9cc9b0;animation:br 8s ease-in-out infinite}
+  @keyframes br{0%,100%{transform:scale(.6)}50%{transform:scale(1.1)}}
+  .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#2b2622;color:#fff;padding:8px 16px;border-radius:20px;font-size:14px;z-index:2147483647;opacity:0;transition:opacity .3s,top .2s;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis}
+  canvas{position:fixed;inset:0;pointer-events:none;z-index:2147483639}
+  </style>
+  <canvas id="trail"></canvas>
+  <div class="ruler rtop" id="rt"></div><div class="rband" id="rb"></div><div class="ruler rbot" id="rbt"></div>
+  <div class="prog" id="prog"></div>
+  <div class="prompt" id="prompt"><h3>偵測到注意力負荷偏高，要開啟專注模式嗎？</h3><p>最近幾秒的滑鼠或捲動變化較大。專注模式會藏起廣告與側欄、降低彩度並放大字距。你可以隨時關閉。<br><span style="color:#888;font-size:12px">Load looks high. Turn on Focus Mode? You can undo anytime.</span></p>
+   <button class="btn pri" id="yes">開啟</button><button class="btn sec" id="no">稍後</button></div>
+  <div class="chunknav" id="cn"><button class="btn sec" id="cprev">上一段</button><button class="btn pri" id="cnext">下一段</button></div>
+  <div class="brk" id="brk"><div class="breath"></div><h2 style="margin:28px 0 6px">休息一分鐘</h2><p id="brkt">跟著圓圈慢慢吸氣、吐氣　60</p><button class="btn sec" id="brkx">略過</button></div>
+  <div class="toast" id="toast"></div><button class="btn sec" id="undo" style="position:fixed;left:16px;bottom:16px;z-index:2147483646;display:none;box-shadow:0 4px 12px rgba(0,0,0,.2)">↩ 一鍵復原</button>`;
+  (document.body || document.documentElement).appendChild(host);
+  const $ = id => root.getElementById(id);
+  const live = id => document.getElementById(id);
+
+  addEventListener('pointermove', e => {
+    if (!S.enabled) return;
+    moves.push({ t: performance.now(), x: e.clientX, y: e.clientY });
+    placeRuler(e.clientY);
+  }, { passive: true });
+  addEventListener('scroll', () => {
+    const y = window.scrollY, d = Math.sign(y - lastScrollY);
+    if (d && d !== lastScrollDir) { if (lastScrollDir && Math.abs(lastScrollY - segStart) >= 120) scrolls.push(performance.now()); lastScrollDir = d; segStart = lastScrollY; }
+    lastScrollY = y;
+  }, { passive: true });
+
+  function features() {
+    const now = performance.now();
+    moves = moves.filter(m => now - m.t < WINDOW_MS); scrolls = scrolls.filter(t => now - t < WINDOW_MS);
+    const sp = []; let dirCh = 0, path = 0, activeMs = 0, prevAng = null, bursts = 0;
+    for (let i = 1; i < moves.length; i++) {
+      const a = moves[i - 1], b = moves[i], dt = b.t - a.t; if (dt <= 0 || dt > 250) { prevAng = null; continue; }
+      const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy); if (d < 2) continue;
+      const v = d / dt * 1000; sp.push(v); path += d; activeMs += dt; if (v > 2200) bursts++;
+      const ang = Math.atan2(dy, dx);
+      if (prevAng !== null) { let da = Math.abs(ang - prevAng); if (da > Math.PI) da = 2 * Math.PI - da; if (da > Math.PI / 2) dirCh++; }
+      prevAng = ang;
+    }
+    const n = sp.length, mean = n ? sp.reduce((s, v) => s + v, 0) / n : 0;
+    const sd = n > 1 ? Math.sqrt(sp.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1)) : 0;
+    const act = Math.max(activeMs / 1000, 0.5);
+    return { n, speedMean: mean, speedSD: sd, speedCV: mean ? sd / mean : 0, burstRatio: n ? bursts / n : 0,
+      dirPerSec: dirCh / act, scrollFlips: scrolls.length, activeSec: activeMs / 1000 };
+  }
+
+  function compute() {
+    const f = features();
+    comps = {
+      paceVariability: clamp((f.speedCV - 0.55) / 0.9, 0, 1),
+      impulsiveBursts: clamp(f.burstRatio / 0.22, 0, 1),
+      scrollBacktrack: clamp(f.scrollFlips / 6, 0, 1),
+      direction: clamp((f.dirPerSec - 0.6) / 4, 0, 1),
+      movementVariability: clamp(f.speedSD / 900, 0, 1),
+    };
+    let raw = 100 * (comps.paceVariability * .30 + comps.impulsiveBursts * .28 + comps.scrollBacktrack * .20 + comps.direction * .12 + comps.movementVariability * .10);
+    if (f.activeSec < 1.0) raw *= f.activeSec;
+    if (!S.demoMode) {
+      if (calib.base === null) { if (f.activeSec >= 1) { calib.sum += raw; calib.n++; } if (performance.now() - calib.start > CALIB_MS && calib.n >= 10) calib.base = Math.min(calib.sum / calib.n, 50); }
+      else { const b = calib.base * 0.8; raw = clamp((raw - b) * 100 / (100 - b), 0, 100); }
+    }
+    raw = clamp(raw * S.sensitivity, 0, 100);
+    score = score + (raw - score) * 0.35;
+    render(f);
+  }
+
+  const TH = () => S.demoMode ? { high: 50, mod: 28, hold: 1500, prompt: 50 } : { high: 65, mod: 35, hold: 6000, prompt: 70 };
+  const names = { paceVariability: '節奏不穩 ×0.30', impulsiveBursts: '突發甩動 ×0.28', scrollBacktrack: '來回捲動 ×0.20', direction: '方向變換 ×0.12', movementVariability: '速度變異 ×0.10' };
+  const CIRC = 163.4;
+
+  function render(f) {
+    const s = Math.round(score), th = TH();
+    const lvl = s >= th.high ? 'High' : s >= th.mod ? 'Moderate' : 'Low';
+    const col = lvl === 'High' ? '#d9532b' : lvl === 'Moderate' ? '#f0a33a' : '#2f7d5b';
+    const label = { High: '偏高', Moderate: '中等', Low: '低' }[lvl] + ((!S.demoMode && calib.base === null) ? '・校準中' : '');
+    live('num').textContent = s;
+    live('lvl').textContent = label;
+    live('lvl').style.color = col;
+    live('arc').style.stroke = col;
+    live('arc').style.strokeDashoffset = CIRC * (1 - s / 100);
+    live('comps').innerHTML = Object.entries(comps).map(([k, v]) =>
+      `<div class="row"><span>${names[k]}<div class="track"><i style="width:${Math.round(v * 100)}%"></i></div></span><span>${Math.round(v * 100)}</span></div>`
+    ).join('');
+    window.__naState = { score: s, level: lvl, comps, features: f, focusOn };
+    document.documentElement.setAttribute('data-na-score', s);
+    document.documentElement.setAttribute('data-na-focus', focusOn ? '1' : '0');
+    const now = performance.now();
+    if (s >= th.prompt) { if (!highSince) highSince = now; } else highSince = 0;
+    if (S.autoPrompt && !focusOn && !prompted && highSince && now - highSince > th.hold && now > snoozeUntil) {
+      prompted = true; $('prompt').classList.add('show');
+    }
+    if (focusOn) { if (lvl === 'High') { if (!focusHighSince) focusHighSince = now; if (now - focusHighSince > 60000) { focusHighSince = 0; showBreak(); } } else focusHighSince = 0; }
+    const bar = live('na-bar').getBoundingClientRect();
+    $('prompt').style.top = Math.max(12, bar.bottom + 12) + 'px';
+    drawTrail();
+  }
+
+  const cv = $('trail'), ctx = cv.getContext('2d');
+  function drawTrail() {
+    cv.width = innerWidth; cv.height = innerHeight; if (!S.trail) return;
+    const now = performance.now(), pts = moves.filter(m => now - m.t < 2500);
+    ctx.lineWidth = 3; ctx.lineCap = 'round';
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i]; if (b.t - a.t > 250) { ctx.fillStyle = 'rgba(217,83,43,.6)'; ctx.beginPath(); ctx.arc(a.x, a.y, 6, 0, 7); ctx.fill(); continue; }
+      ctx.strokeStyle = `rgba(217,83,43,${0.15 + 0.7 * (1 - (now - b.t) / 2500)})`; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+  }
+
+  function findMain() {
+    return document.querySelector('[data-na-main]') || (() => {
+      const cands = [...document.querySelectorAll('#demo-frame article, #demo-frame main, #demo-frame [role=main], #demo-frame div, #demo-frame section')];
+      let best = null, bs = 0;
+      for (const el of cands) { const ps = el.querySelectorAll(':scope > p'); let t = 0; ps.forEach(p => t += p.textContent.length); if (t > bs) { bs = t; best = el; } }
+      return best;
+    })();
+  }
+  const NOISE = 'aside, nav, iframe, marquee, video[autoplay], [class*="ad-"], [class*="-ad"], [class^="ad"], [id^="ad"], [class*="banner"], [class*="sponsor"], [class*="promo"], [class*="comment"], [class*="sidebar"], [class*="related"], [class*="popup"], [class*="recommend"], [class*="ticker"], [class*="newsletter"], [data-na-noise]';
+
+  let stepTimers = [];
+  function clearSteps() {
+    stepTimers.forEach(t => clearTimeout(t)); stepTimers = [];
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active', 'done'));
+  }
+  function markStep(n) {
+    document.querySelectorAll('.step').forEach(el => {
+      const s = +el.dataset.step;
+      el.classList.toggle('active', s === n);
+      el.classList.toggle('done', s < n);
+    });
+  }
+
+  function setFocus(on, staged = true) {
+    if (on === focusOn) return; focusOn = on; $('prompt').classList.remove('show');
+    const html = document.documentElement;
+    const btn = live('btnFocus');
+    if (!on) {
+      clearSteps();
+      $('undo').style.display = 'none';
+      live('btnUndo').disabled = true;
+      btn.textContent = '直接開啟專注模式';
+      btn.classList.add('pri');
+      html.classList.remove('na-f1', 'na-f2', 'na-f3', 'na-f4', 'na-focus');
+      document.querySelectorAll('.na-hide,.na-slide').forEach(e => e.classList.remove('na-hide', 'na-slide', 'na-gone'));
+      setChunk(false); setRuler(false); toast('專注模式已關閉'); prompted = false; return;
+    }
+    const main = findMain(); if (main) main.setAttribute('data-na-main', '');
+    const keep = new Set(); let p = main; while (p) { keep.add(p); p = p.parentElement; }
+    const noise = new Set(document.querySelectorAll('#demo-frame ' + NOISE));
+    if (main) { let a = main; while (a && a !== document.body) { for (const sib of a.parentElement.children) if (!keep.has(sib) && sib !== host && !/^H[1-6]$/.test(sib.tagName) && !sib.querySelector('h1')) noise.add(sib); a = a.parentElement; } }
+    for (const el of document.querySelectorAll('#demo-frame *')) {
+      if (el === host || keep.has(el) || el.closest('[data-na-keep]')) continue;
+      const cs = getComputedStyle(el); if (cs.position === 'fixed' || cs.position === 'sticky') noise.add(el);
+    }
+    noise.forEach(el => { if (keep.has(el) || el.closest('[data-na-keep]') || el === host || host.contains(el) || !el.closest('#demo-frame')) noise.delete(el); });
+    document.querySelectorAll('#demo-frame video, #demo-frame audio').forEach(v => { try { v.pause(); v.autoplay = false; } catch (e) {} });
+    const ads = [...noise].filter(e => /ad|banner|sponsor|promo|iframe|marquee|popup/i.test((e.className || '') + ' ' + e.id + ' ' + e.tagName) || e.hasAttribute('data-na-ad'));
+    const rest = [...noise].filter(e => !ads.includes(e));
+    $('undo').style.display = 'block';
+    live('btnUndo').disabled = false;
+    btn.textContent = '關閉專注模式';
+    btn.classList.remove('pri');
+    clearSteps();
+    const steps = [
+      () => { html.classList.add('na-f1'); ads.forEach(e => e.classList.add('na-hide')); markStep(1); toast('① 廣告淡出 · Ads fade'); },
+      () => { html.classList.add('na-f2'); rest.forEach(e => e.classList.add('na-slide')); markStep(2); toast('② 側欄與彈窗滑走 · Sidebars leave'); },
+      () => { html.classList.add('na-f3'); markStep(3); toast('③ 降低彩度、停止動畫 · Calm the page'); },
+      () => { [...noise].forEach(e => e.classList.add('na-gone')); html.classList.add('na-f4', 'na-focus'); markStep(4); toast('④ 放大成單欄閱讀 · One column');
+        const artEl = main || findMain();
+        if (artEl) {
+          const barH = live('na-bar').getBoundingClientRect().height;
+          const y = artEl.getBoundingClientRect().top + window.scrollY - barH - 16;
+          window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+        }
+        setTimeout(() => document.querySelectorAll('.step').forEach(el => { el.classList.add('done'); el.classList.remove('active'); }), 900); },
+    ];
+    const gap = staged ? 1100 : 0;
+    steps.forEach((fn, i) => stepTimers.push(setTimeout(fn, i * gap)));
+    window.dispatchEvent(new CustomEvent('na-focus-on'));
+  }
+
+  let rulerY = innerHeight / 2;
+  function placeRuler(y) { rulerY = y; if (!rulerOn) return; const h = 46, t = Math.max(0, y - h / 2); $('rt').style.height = t + 'px'; $('rb').style.top = t + 'px'; $('rbt').style.top = (t + h) + 'px'; $('rbt').style.height = 'auto'; }
+  function setRuler(on) { rulerOn = on; ['rt', 'rb', 'rbt'].forEach(i => $(i).style.display = on ? 'block' : 'none'); placeRuler(rulerY); live('btnRuler').classList.toggle('on', on); }
+
+  let chunkIdx = 0, paras = [];
+  function setChunk(on) {
+    chunkOn = on; const main = document.querySelector('[data-na-main]') || findMain();
+    paras = main ? [...main.querySelectorAll(':scope > p')] : [];
+    $('prog').style.display = on && paras.length ? 'block' : 'none';
+    $('cn').style.display = on && paras.length ? 'block' : 'none';
+    paras.forEach(p => p.classList.toggle('na-dim', on)); if (on) showChunk(0); else paras.forEach(p => p.classList.remove('na-cur', 'na-dim'));
+    live('btnChunk').classList.toggle('on', on);
+  }
+  function showChunk(i) { chunkIdx = clamp(i, 0, paras.length - 1); paras.forEach((p, k) => { p.classList.toggle('na-cur', k === chunkIdx); p.classList.toggle('na-dim', k !== chunkIdx); }); paras[chunkIdx]?.scrollIntoView({ behavior: 'smooth', block: 'center' }); $('prog').style.width = ((chunkIdx + 1) / paras.length * 100) + '%'; }
+  $('cnext').onclick = () => showChunk(chunkIdx + 1); $('cprev').onclick = () => showChunk(chunkIdx - 1);
+  addEventListener('keydown', e => { if (!chunkOn) return; if (e.key === 'ArrowRight' || e.key === 'j') showChunk(chunkIdx + 1); if (e.key === 'ArrowLeft' || e.key === 'k') showChunk(chunkIdx - 1); });
+
+  let brkTimer;
+  function showBreak() { let n = 60; $('brk').classList.add('show'); clearInterval(brkTimer); brkTimer = setInterval(() => { n--; $('brkt').textContent = '跟著圓圈慢慢吸氣、吐氣　' + n; if (n <= 0) hideBreak(); }, 1000); }
+  function hideBreak() { clearInterval(brkTimer); $('brk').classList.remove('show'); }
+  $('brkx').onclick = hideBreak;
+
+  let toastT; function toast(m) {
+    const t = $('toast'); t.textContent = m; t.style.opacity = 1;
+    const bar = live('na-bar').getBoundingClientRect();
+    t.style.top = (bar.bottom + 10) + 'px';
+    clearTimeout(toastT); toastT = setTimeout(() => t.style.opacity = 0, 1800);
+  }
+
+  function cmd(c, v) {
+    switch (c) {
+      case 'focus': setFocus(v === undefined ? !focusOn : !!v, true); break;
+      case 'focusInstant': setFocus(!!v, false); break;
+      case 'chunk': setChunk(v === undefined ? !chunkOn : !!v); break;
+      case 'ruler': setRuler(v === undefined ? !rulerOn : !!v); break;
+      case 'break': showBreak(); break;
+      case 'reset':
+        calib.start = performance.now(); calib.sum = 0; calib.n = 0; calib.base = null;
+        moves = []; scrolls = []; score = 0; prompted = false; snoozeUntil = 0; hideBreak();
+        if (focusOn) setFocus(false);
+        break;
+    }
+    return { score: Math.round(score), focusOn, chunkOn, rulerOn };
+  }
+
+  $('undo').onclick = () => setFocus(false);
+  $('yes').onclick = () => setFocus(true);
+  $('no').onclick = () => { $('prompt').classList.remove('show'); prompted = false; snoozeUntil = performance.now() + 60000; };
+
+  live('btnFocus').onclick = () => setFocus(!focusOn, true);
+  live('btnRuler').onclick = () => setRuler(!rulerOn);
+  live('btnChunk').onclick = () => setChunk(!chunkOn);
+  live('btnUndo').onclick = () => setFocus(false);
+  live('btnReset').onclick = () => cmd('reset');
+  live('demoMode').onchange = e => { S.demoMode = e.target.checked; highSince = 0; };
+
+  document.addEventListener('na-cmd', e => { const d = e.detail || {}; if (d.settings) Object.assign(S, d.settings); if (d.cmd) cmd(d.cmd, d.value); });
+  setInterval(() => { if (S.enabled) compute(); }, 400);
+})();
+</script>
+</body>
+</html>
